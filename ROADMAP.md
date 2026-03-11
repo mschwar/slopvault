@@ -2,92 +2,111 @@
 
 ## Phase 0: Clarify and Stabilize Concept (Week 0-1)
 
-**Goal:** Turn the concept workspace into a buildable project.
+**Goal:** Turn the concept workspace into a buildable project with a parser and provenance contract strong enough to support the private vault.
 
 - Finalize tech stack decisions (this phase is largely complete with the scaffolding docs).
-- Resolve open questions: auth strategy, image support at MVP, deployment target.
+- Resolve open questions: auth strategy, deployment target.
 - Initialize the Next.js project with Supabase client configured.
-- Set up Tailwind with the dark-mode-only theme.
-- Create the Supabase project and apply initial schema migrations.
+- Set up Tailwind with the dark-mode-only theme (utilitarian, brutalist, high info-density).
+- Create the Supabase project and apply initial schema migrations (including Storage bucket for images).
 - Build and test the parser against real raw pastes from ChatGPT and Claude.
+- Define the provenance metadata contract for MVP artifacts: source model, source surface, timestamps, prompt-family evidence, and other best-effort signals.
+- Collect the founder's Substrate project files as canonical test data.
 
 **Exit criteria:**
 - `npm run dev` starts a working Next.js app with Supabase connected.
-- The parser function accepts raw ChatGPT paste and returns clean Markdown + metadata.
-- At least 5 real raw-paste test cases exist and pass.
+- The parser function accepts raw ChatGPT paste and returns clean Markdown plus metadata.
+- Provenance metadata fields are documented and emitted when detectable.
+- At least 5 real raw-paste test cases exist and pass (from the Substrate project sessions).
 - Dark mode base theme is applied globally.
 
 ---
 
 ## Phase 1: The Single-Player Game (Weeks 2-4)
 
-**Goal:** Build a private vault that is genuinely useful for one person who generates a lot of AI text.
+**Goal:** Build a private vault that is genuinely useful for one person who generates a lot of AI content. The founder should be able to dump their entire Substrate research project into the vault, retrieve it later, and understand what is related to what.
 
 Features:
 
-- **The Dumpster:** A paste-and-parse page. Large textarea, submit button, preview of parsed output, save button.
-- **The Stash:** A list/grid view of all saved artifacts. Title, preview snippet, source model badge, tags, date.
-- **Artifact detail view:** Full rendered Markdown with metadata sidebar (source model, prompt if detected, creation date, tags).
+- **The Dumpster (unified ingestion hub):** One clear intake surface for copy-pasted conversations, provider export JSON/history uploads, standalone prompts, standalone artifacts, JPG/PNG uploads, and audio links. The user should not need to understand the ingestion model first.
+- **Export guidance:** Exact step-by-step provider export instructions available inside The Dumpster for supported sources.
+- **The Stash:** A list/grid view of all saved artifacts. Each card shows: title, preview snippet (or thumbnail for images), source model badge, tags, creation date. Filtering by type (text/image/audio).
+- **Artifact detail view:** Full rendered Markdown for text. Image display for images. Link embed for audio. Metadata sidebar (source model, prompt if detected, source surface, timestamps, tags).
+- **Direct artifact sharing:** Artifacts can be made public directly from their detail pages with a clean public URL and prompt/result presentation when available.
+- **Related-item surfaces:** Best-effort related artifacts, same-prompt-family hints, and derived-from cues built from the hidden provenance ledger.
+- **Manual correction:** Confirm, dismiss, or add links when the system's artifact relationship guesses are wrong or incomplete.
 - **Search:** Full-text search across artifact content and tags.
 - **Tags:** Manual tag input on save. Tag-based filtering in the Stash.
-- **Auth:** Sign up / sign in with email and password. Protected routes.
+- **Auth:** Sign up / sign in with email and password. Pseudonym chosen at sign-up. Protected routes.
 
 **Exit criteria:**
-- A new user can sign up, paste raw LLM output, see it parsed, save it, find it later via search or tags.
+- A new user can sign up, paste raw LLM output, see it parsed, save it, and find it later via search, tags, or provenance cues.
+- A user can upload a provider export file, preview the import result, and save it.
+- A user can drag-and-drop an image or batch import standalone artifacts and save them to the Stash.
+- Artifact detail views show useful metadata and related-item suggestions.
+- A user can make an individual artifact public directly from its detail view.
+- A user can manually confirm or dismiss inferred links between artifacts.
 - The Stash loads and renders 100+ artifacts without performance issues.
-- All views are dark mode, responsive to mobile widths.
+- All views are dark mode and responsive to mobile widths.
 - The parser handles ChatGPT, Claude, Gemini, and Grok raw pastes.
+- The founder's Substrate project can be fully imported as a provenance-aware private vault test.
 
 ---
 
-## Phase 2: Nodes and Bundling (Weeks 5-6)
+## Phase 2: Bundling and Optional Sharing (Weeks 5-6)
 
-**Goal:** Let users group related artifacts into project-like bundles.
+**Goal:** Let users package related artifacts into a presentation-ready object without changing the artifact-first storage model underneath.
 
 Features:
 
-- **Create Node:** Select multiple artifacts from the Stash, give the bundle a title and description, save as a Node.
-- **Node detail view:** Shows all bundled artifacts in order with the node's metadata.
-- **Node management:** Edit node title/description, add/remove artifacts, reorder.
+- **Create Node:** Select multiple artifacts from the Stash (text + images + audio links together), give the bundle a title, description, and a hook, and save it as a Node/package.
+- **Node detail view:** Shows bundled artifacts in order with the Node's metadata. Mixed media — text and images interleaved.
+- **Node management:** Edit node title/description/hook, add/remove artifacts, reorder.
 - **Visibility toggle:** Nodes can be marked Private or Public.
 
 **Exit criteria:**
-- A user can create a Node from 3+ artifacts, view it as a coherent page, and toggle it to Public.
-- Nodes appear in the Stash alongside standalone artifacts (or in a separate "Nodes" tab).
+- A user can create a Node from 3+ artifacts of mixed types and view it as a coherent page.
+- The Substrate project can be represented as a shareable package built from already-saved artifacts.
+- Node creation feels like packaging or publishing work that already lives in the vault, not like the primary way the vault stores things.
 
 ---
 
 ## Phase 3: The Public Feed (Weeks 7-8)
 
-**Goal:** Let users discover and engage with published content.
+**Goal:** Let users discover and engage with published content after the private vault and provenance-aware artifact workflows are already solid.
 
 Features:
 
-- **Public feed page:** Masonry or card layout of published Nodes. Sorted by "New" and "Hot" (upvote-based ranking).
+- **Public feed page:** Masonry or card layout of published Nodes. Three sort modes:
+  - **"New/Raw"** — chronological firehose of everything published.
+  - **"Hot Slop"** — upvote-weighted ranking with time decay.
+  - **"Rabbit Holes"** — sorted by fork-chain depth. Surfaces the most remixed/branched content.
 - **Upvoting:** Authenticated users can upvote published Nodes.
-- **Public Node view:** Viewable by anyone (no auth required to read).
-- **User profile page:** Pseudonym, list of published Nodes.
+- **Public Node view:** Viewable by anyone (no auth required to read). Shows "View Recipe" metadata.
+- **User profile page:** Pseudonym, join date, list of published Nodes. No follower counts.
 
 **Exit criteria:**
-- A visitor (not logged in) can browse the public feed and read published Nodes.
+- A visitor (not logged in) can browse the public feed in all three modes and read published Nodes.
 - A logged-in user can upvote Nodes.
-- "Hot" sorting produces a reasonable ranking based on upvotes and recency.
+- "Hot Slop" sorting produces a reasonable ranking based on upvotes and recency.
+- "Rabbit Holes" correctly surfaces nodes with the deepest fork chains.
 
 ---
 
-## Phase 4: Fork and Lineage (Weeks 9-10)
+## Phase 4: Fork and Public Lineage (Weeks 9-10)
 
-**Goal:** Enable the remix/fork mechanic that differentiates SlopVault.
+**Goal:** Enable the remix/fork mechanic on the public side of the product.
 
 Features:
 
 - **Fork button:** On any public Node, a logged-in user can fork it into their own Stash as a new Node with `parent_node_id` set.
 - **Lineage display:** On a Node's detail page, show its parent (if forked) and any children (forks of it).
-- **Lineage tree visualization:** Simple tree or breadcrumb showing the fork chain.
+- **Lineage tree visualization:** Visual tree or branching diagram showing the public fork chain.
 
 **Exit criteria:**
-- User A publishes a Node. User B forks it, modifies it, publishes the fork. Both Nodes show the parent-child relationship.
+- User A publishes a Node. User B forks it, modifies it, and publishes the fork. Both Nodes show the parent-child relationship.
 - The lineage chain is visible on both the parent and child Node pages.
+- The "Rabbit Holes" feed mode correctly uses fork depth to rank content.
 
 ---
 
@@ -95,12 +114,14 @@ Features:
 
 These are documented for future direction but should not be built or scaffolded now.
 
-- **Image and media upload support** with Supabase Storage.
-- **AI-powered auto-tagging** using an LLM or embedding model.
+- **Visible seed/journey workspace** built on top of the hidden provenance ledger.
+- **AI-powered auto-tagging** using a lightweight vision/text model (#cyberpunk, #synthwave, #essay).
 - **Browser extension** for one-click capture from LLM chat interfaces.
 - **API integrations** with ChatGPT, Claude, etc. for direct import.
-- **Freemium billing** with Stripe for premium storage tiers.
+- **Freemium billing** with Stripe for premium storage tiers ($8/mo for media-heavy vaults).
 - **In-platform generation** via LLM API calls (micro-credit model).
-- **Curated exhibitions / challenges** (community events).
+- **Curated exhibitions / challenges / bounties** (community events, brand partnerships).
 - **Embeddable artifacts** (like GitHub Gists).
 - **Full-text semantic search** using embeddings.
+- **Video support** (upload + hosting, requires significant infrastructure).
+- **Downvotes** for quality control (pending decision on moderation strategy).

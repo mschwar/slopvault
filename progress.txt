@@ -1,0 +1,18 @@
+2026-03-11
+
+- Created the missing design foundation docs: `DESIGN_SYSTEM.md`, `FRONTEND_GUIDELINES.md`, `APP_FLOW.md`, and `TECH_STACK.md`.
+- Locked the MVP design hierarchy to `capture -> retrieve -> share -> browse`.
+- Made the signed-in product vault-first instead of feed-first.
+- Set the first public share unit to the individual artifact.
+- Defined prompt + result as the default presentation model for shareable text artifacts.
+- Positioned seed and journey as provenance extensions that support the vault rather than replacing it.
+- Updated `AGENTS.md` so future build sessions load the new design docs first for frontend work.
+- Locked ingestion to one clear hub that accepts copy-paste, provider export JSON/history uploads, standalone prompt intake, and standalone artifact intake.
+- Added the requirement for in-product, step-by-step export guidance for supported providers.
+- Propagated the ingestion model into `PRD.md`, `ARCHITECTURE.md`, `ROADMAP.md`, and `BACKLOG.md` so implementation priorities match the current product direction.
+- Implemented a typed ingest contract in `src/lib/ingest-contract.ts` for preview and save flows.
+- Implemented heuristic input classification for pasted text, provider export JSON, standalone prompts, standalone artifacts, images, and audio links in `src/lib/ingest.ts`.
+- Built the first working `/dump` route with unified paste/upload intake, provider export guides, import preview cards, and save behavior into a local demo vault.
+- Added a `/vault` demo route so the preview-to-save loop is testable before Supabase wiring exists.
+- Verified the implementation with `npm test` and `npm run build`.
+- Current limitation: save persists to local browser storage only; it is a UX scaffold until artifact creation is wired to the backend.

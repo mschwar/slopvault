@@ -3,66 +3,114 @@
 ## P0 — Must happen first, blocks everything else
 
 ### P0-1: Initialize Next.js project
-Create a Next.js 14+ app with App Router inside `src/`. Configure Tailwind with a dark-mode-only theme (no light mode toggle). Set up the base layout with a minimal nav shell. Confirm `npm run dev` works.
+Create a Next.js 14+ app with App Router inside `src/`. Configure Tailwind with a dark-mode-only theme (utilitarian, brutalist, high info-density — no light mode toggle). Set up the base layout with a minimal nav shell. Confirm `npm run dev` works.
 
 ### P0-2: Set up Supabase project and schema
-Create a Supabase project. Write and apply SQL migrations for the initial schema (`users` profile extension, `artifacts`, `nodes`, `node_artifacts` — see `SCHEMA.md`). Configure Row Level Security policies so users can only read/write their own private data. Set up the Supabase client in `src/lib/supabase.ts`.
+Create a Supabase project. Write and apply SQL migrations for the initial schema (`profiles`, `artifacts`, `nodes`, `node_artifacts`, `votes` — see `SCHEMA.md`). Configure Row Level Security policies so users can only read/write their own private data. Set up a Supabase Storage bucket for image uploads. Set up the Supabase client in `src/lib/supabase.ts`.
 
-### P0-3: Build the parser
-Implement the raw-text parser in `src/lib/parser.ts`. It must:
-- Accept a raw string (copy-pasted LLM output).
+### P0-3: Build the parser/import pipeline ("God-Tier Text Parser")
+Implement the raw-text parser in `src/lib/parser.ts` and the ingest normalizers it depends on. It must:
+- Accept a raw string (copy-pasted LLM output via Ctrl+A → Ctrl+V from a chat window).
+- Support ingestion classification for copy-pasted conversations, official provider export JSON/history files, standalone prompts, and standalone artifacts.
 - Detect the likely source model from UI artifacts.
-- Strip non-content elements (thinking indicators, copy-button text, model labels).
+- Detect the likely source surface when possible (`chatgpt-web`, `claude-web`, `gemini-web`, etc.).
+- Strip non-content elements (thinking indicators like "Thought for 2m 49s", copy-button text, model labels, Gemini watermark images, timestamp lines).
 - Separate prompt from response where detectable.
-- Output clean Markdown + a metadata object `{ source_model, detected_prompt, raw_length, parsed_length }`.
-- Handle at minimum: ChatGPT (including o-series "Thought for..." preambles) and Claude output.
+- Output clean Markdown + a metadata object with required fields `{ source_model, detected_prompt, raw_length, parsed_length, parser_version }` and optional provenance fields when detectable.
+- Handle at minimum: ChatGPT (including o-series "Thought for..." preambles), Claude, Gemini (including "Expand to view model thoughts" artifacts), and Grok output.
 
-### P0-4: Write parser test cases
-Collect 8-10 real raw pastes from ChatGPT, Claude, Gemini, and Grok. Write unit tests that verify the parser produces clean output and correct metadata for each. These test cases are critical — they define product quality.
+### P0-4: Write parser test cases using the Substrate project
+Use the founder's actual Substrate research files as primary test data. Collect the raw pastes from `GPT-original-seed.txt`, `gemini-2.txt`, `dump/GPT-firstpass.md`, `dump/gemini-raw-seed.md`, and `dump/Grok-firstpass.md`. Write unit tests that verify the parser produces clean output and correct metadata for each. Also add 3-5 additional raw pastes from other LLM sessions. These test cases define product quality.
 
-### P0-5: Build auth flow
-Implement sign-up and sign-in pages using Supabase Auth (email/password). Create a `profiles` table row on sign-up with a user-chosen pseudonym. Protect vault routes with auth middleware.
+### P0-5: Normalize provenance signals
+Define the MVP provenance contract and implement the supporting utilities. At minimum:
+- normalize provider/model/surface labels into consistent metadata
+- normalize or extract timestamps where available
+- compute prompt fingerprints and prompt-family fingerprints when feasible
+- define what evidence lives in `artifacts.metadata` now versus what is deferred
+- keep the result artifact-first; do not introduce visible `seed`/`trace` objects yet
+
+### P0-6: Build auth flow
+Implement sign-up and sign-in pages using Supabase Auth (email/password). Create a `profiles` table row on sign-up with a user-chosen pseudonym (no real names, no profile photos). Protect vault routes with auth middleware.
 
 ---
 
 ## P1 — Core MVP features, build after P0 is solid
 
-### P1-1: Build The Dumpster page
-A full-screen textarea with a "Parse" button. On submit, call the parser and show a preview of the cleaned Markdown alongside extracted metadata. "Save to Stash" button persists the artifact. Allow the user to add tags before saving.
+### P1-1: Build The Dumpster page (unified ingestion hub)
+A massive, forgiving intake surface (full-screen feel) with a dominant "Parse" button. It must support copy-pasted conversations, provider export JSON/history uploads, standalone prompt uploads/paste, standalone artifact uploads/paste, and batch standalone artifact upload up to 10 items. On submit, call the parser/import pipeline and show a preview of the normalized result alongside extracted metadata. "Save to Stash" persists the artifact(s). Allow the user to add tags before saving. This is the hero feature — it must feel effortless.
 
-### P1-2: Build The Stash page
-Grid or list view of all artifacts belonging to the authenticated user. Each card shows: title (auto-generated from first heading or first line), snippet, source model badge, tags, creation date. Clicking a card opens the artifact detail view.
+### P1-2: Add provider export guidance to The Dumpster
+Provide exact step-by-step guidance for exporting supported provider history files from inside The Dumpster page. At minimum cover ChatGPT, Claude, Gemini, and Grok. The guidance should explain which file the user should upload when that is known.
 
-### P1-3: Build artifact detail view
-Full rendered Markdown display. Sidebar or header showing metadata: source model, detected prompt, tags, creation date, raw vs. parsed character counts. Edit button for tags and title.
+### P1-3: Build The Dumpster (standalone artifact upload)
+Add drag-and-drop and file-picker support for standalone artifacts to The Dumpster page. At minimum support JPG/PNG image files cleanly and allow batch standalone artifact import up to 10 items. User adds tags and optional title/description. Saved as artifacts with provenance metadata when available.
 
-### P1-4: Implement search
-Add full-text search using Postgres `tsvector` across artifact `parsed_markdown` and `tags`. Search bar in the Stash page header. Results update as the user types (debounced).
+### P1-4: Build The Dumpster (standalone prompts and audio links)
+Add support for standalone prompt uploads/paste and a URL input field for audio links (Suno, Udio, SoundCloud, etc.). Validate the URL. Save prompt-first inputs and `audio_link` artifacts with the best provenance metadata available.
 
-### P1-5: Implement artifact visibility toggle
-On individual artifacts, add a Private/Public toggle. Public artifacts are readable without auth via a shareable URL.
+### P1-5: Build The Stash page
+Grid or list view of all artifacts belonging to the authenticated user. Each card shows: title (auto-generated from first heading or first line for text; filename for images), preview snippet or thumbnail, source model badge, tags, creation date, and lightweight provenance cues where helpful. Filter by type (text/image/audio). Clicking a card opens the artifact detail view.
+
+### P1-6: Build artifact detail view
+Full rendered Markdown for text artifacts. Image display for image artifacts. Link embed or player for audio artifacts. Sidebar or header showing metadata: source model, source surface, detected prompt (if text), tags, creation date, raw vs. parsed character counts (if text). Share action should live directly on this screen. Edit button for tags and title.
+
+### P1-7: Surface related artifacts and provenance cues
+On artifact detail pages, show best-effort related artifacts and provenance signals such as:
+- same prompt family
+- close timestamp / likely same session
+- derived-from or similar-source hints
+- linked uploads or adjacent artifacts when available
+
+### P1-8: Support manual confirmation and correction of links
+Give the user a way to confirm suggested links, dismiss wrong ones, and manually connect artifacts when they know the system is missing context.
+
+### P1-9: Implement search
+Add full-text search using Postgres `tsvector` across artifact `parsed_markdown`, `title`, and `tags`. Search bar in the Stash page header. Results update as the user types (debounced).
+
+### P1-10: Implement artifact visibility toggle
+On individual artifacts, add a Private/Public toggle. Public artifacts are readable without auth via a shareable URL. Show prompt + result when available, plus recipe/provenance metadata on public artifacts.
 
 ---
 
-## P2 — Nodes, bundling, and social layer. Build only after P1 is working and tested.
+## P2 — Bundling and optional sharing. Build only after P1 is working and tested.
 
 ### P2-1: Build Node creation flow
-"New Node" button in the Stash. Multi-select artifacts, give the node a title and optional description, save. Node detail page shows bundled artifacts in sequence. Nodes have their own Private/Public visibility toggle.
+"New Node" button in the Stash. Multi-select artifacts of any type (text + images + audio links together), give the node a title, optional description, and a hook (short public-facing summary). Save. Node detail page shows bundled artifacts in sequence with mixed media. Nodes have their own Private/Public visibility toggle.
 
-### P2-2: Build the public feed page
-Masonry-style card layout of all public Nodes. Two sort modes: "New" (chronological) and "Hot" (upvotes weighted by recency). Paginated or infinite scroll.
+### P2-2: Build Node detail and management
+Support editing node title/description/hook, adding/removing artifacts, and reordering artifacts. Node creation should feel like packaging existing vault content for presentation, not like a replacement for the underlying artifact model.
 
-### P2-3: Implement upvoting
-Authenticated users can upvote public Nodes. One upvote per user per Node. Upvote count displayed on Node cards and detail pages.
+### P2-3: Build public/shareable node views
+Support shareable public node pages and the visibility workflow that moves packaged work from private to public.
 
-### P2-4: Build user profile page
-Public page at `/u/{pseudonym}` showing the user's published Nodes. Minimal — pseudonym, join date, list of public Nodes.
+---
 
-### P2-5: Implement the fork mechanic
-"Fork" button on public Nodes. Creates a copy in the forking user's Stash with `parent_node_id` set. The forked Node can be edited and republished. Parent and child Nodes display their lineage relationship.
+## P3 — Public feed and discovery. Build only after P2 is working and tested.
 
-### P2-6: Lineage tree visualization
-On any Node with forks, show a simple tree or breadcrumb of the fork chain. Depth-limited to prevent performance issues on deep chains.
+### P3-1: Build the public feed page
+Masonry-style card layout of all public Nodes. Three sort modes:
+- **"New/Raw"** — chronological firehose.
+- **"Hot Slop"** — upvotes weighted by recency (time-decay algorithm).
+- **"Rabbit Holes"** — sorted by fork-chain depth (deepest/most-forked lineage chains).
+
+Paginated or infinite scroll. Each card shows: Node title, hook text, author pseudonym, upvote count, fork count, media type indicators.
+
+### P3-2: Implement upvoting
+Authenticated users can upvote public Nodes. One upvote per user per Node. Upvote count displayed on Node cards and detail pages. Trigger to keep `nodes.upvotes` in sync with `votes` table.
+
+### P3-3: Build user profile page
+Public page at `/u/{pseudonym}` showing the user's published Nodes. Minimal — pseudonym, join date, list of public Nodes. No follower counts, no social graph.
+
+---
+
+## P4 — Forking and public lineage. Build only after P3 is working and tested.
+
+### P4-1: Implement the fork mechanic
+"Fork" button on public Nodes. Creates a copy in the forking user's Stash with `parent_node_id` set. The forked Node can be edited (add/remove artifacts, change title) and republished. Parent and child Nodes display their lineage relationship.
+
+### P4-2: Lineage tree visualization
+On any Node with forks, show a visual tree or branching diagram of the fork chain. This powers the "Rabbit Holes" feed and makes public lineage navigable. Depth-limited to prevent performance issues on deep chains.
 
 ---
 
@@ -70,22 +118,28 @@ On any Node with forks, show a simple tree or breadcrumb of the fork chain. Dept
 
 These are not implementation tasks. They require investigation or founder decisions.
 
-- **R1:** Test the parser against 20+ real pastes to identify failure modes. Document which LLM output formats are hardest to parse.
-- **R2:** Decide on image support timeline. If Phase 1 includes images, the parser and storage architecture need to change.
-- **R3:** Evaluate Supabase storage pricing at projected usage levels. Is it viable for media, or should we use a separate S3 bucket?
-- **R4:** Define the "Hot" ranking algorithm. Options: Hacker News decay formula, Reddit-style time-weighted scoring, simple upvotes-per-hour.
-- **R5:** Design the content moderation MVP. At minimum: a "report" button and a way for an admin to hide content.
+- **R1:** Test the parser against 20+ real pastes to identify failure modes for both cleaning and provenance capture. Pay special attention to Gemini's UI artifacts (watermark images, "Expand to view" controls).
+- **R2:** Define prompt normalization and prompt-family fingerprinting rules. What should be removed, preserved, or hashed?
+- **R3:** Evaluate Supabase Storage pricing at projected usage levels for image hosting. Is it viable, or should we use a separate S3 bucket?
+- **R4:** Define the artifact-link suggestion strategy. Which signals matter most: prompt fingerprints, timestamps, shared uploads, copied text fragments, or manual confirmation?
+- **R5:** Define the "Hot Slop" ranking algorithm. Options: Hacker News decay formula, Reddit-style time-weighted scoring, simple upvotes-per-hour.
+- **R6:** Define the "Rabbit Holes" ranking algorithm. Recursive CTE for fork depth vs. materialized/cached depth column. Test performance.
+- **R7:** Design the content moderation MVP. At minimum: a "report" button and a way for an admin to hide content. Decide on downvotes.
+- **R8:** Decide on auth strategy. Email/password only, or add OAuth (Google, GitHub)?
 
 ---
 
 ## Tasks That Should Wait
 
-Do not start these until the MVP (P0 + P1 + P2) is shipped and validated with real users.
+Do not start these until the MVP (P0 + P1 + P2/P3 as needed) is shipped and validated with real users.
 
+- A visible seed-first or graph-first journey workspace.
+- AI-powered auto-tagging (strong candidate for first post-MVP feature).
 - Browser extension for one-click capture.
-- AI-powered auto-tagging.
 - Stripe billing integration.
-- In-platform AI generation (API calls).
-- Embeddable artifact widgets.
+- In-platform AI generation (API calls with micro-credits).
+- Embeddable artifact widgets (like GitHub Gists).
 - Semantic search with embeddings.
 - Mobile-native app.
+- Video upload and hosting.
+- Curated exhibitions / challenges / bounties.

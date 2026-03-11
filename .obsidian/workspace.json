@@ -97,16 +97,30 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "dump/gemini-raw-seed.md",
+                "file": "README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "gemini-raw-seed"
+              "title": "README"
+            }
+          },
+          {
+            "id": "c35e8e312293a4d2",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "scratchpad/seeds-trace-spec.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "seeds-trace-spec"
             }
           }
         ],
-        "currentTab": 6
+        "currentTab": 7
       }
     ],
     "direction": "vertical"
@@ -268,32 +282,53 @@
       "bases:Create new base": false
     }
   },
-  "active": "741fb5062c890b73",
+  "active": "82ec293a38b952f2",
   "lastOpenFiles": [
-    "supabase/migrations",
-    "supabase",
-    "src/components/ui",
-    "src/components/artifacts",
-    "src/lib",
-    "src/components",
-    "src/app",
-    "src",
-    "SCHEMA.md",
-    "RUNBOOK.md",
-    "BACKLOG.md",
-    "ROADMAP.md",
-    "ARCHITECTURE.md",
-    "PRD.md",
-    "AGENTS.md",
-    "README.md",
-    "dump/GPT-firstpass.md",
-    "dump/Grok-firstpass.md",
-    "dump/gemini-raw-seed.md",
-    "Welcome.md",
-    "Untitled 1.md",
-    "03_THE_PRD_AND_SCHEMA.md",
-    "dump",
-    "02_THE_BUSINESS_MEMO.md",
-    "01_THE_NORTH_STAR.md"
+    "dump/xai-dump/README.md",
+    "dump/openai-dump/README.md",
+    "dump/anthropic-dump/README.md",
+    "dump/README.md",
+    "scratchpad/agent-handoff-seeds-trace.md",
+    "src/components/app/AppNav.tsx",
+    "src/components/app",
+    "tests/ingest.test.ts",
+    "src/components/vault/VaultClient.tsx",
+    "src/components/vault",
+    "src/components/dump/ProviderGuidePanel.tsx",
+    "src/components/dump/PreviewList.tsx",
+    "src/components/dump/DumpWorkspace.tsx",
+    "src/components/dump",
+    "src/app/vault/page.tsx",
+    "dump/google-dump/year4-5.PNG",
+    "dump/google-dump/year2-3.PNG",
+    "dump/google-dump/year1.PNG",
+    "dump/google-dump/Workflow.md",
+    "dump/google-dump/Workflow (1).md",
+    "dump/google-dump/Wenner Gren_10.20.2015.md",
+    "dump/google-dump/Wenner Gren_10.20.2015 (2).md",
+    "dump/google-dump/Wenner Gren_10.20.2015 (1).md",
+    "dump/google-dump/USER.md",
+    "dump/google-dump/USER (2).md",
+    "dump/google-dump/USER (1).md",
+    "dump/google-dump/unofficialtranscripts2020_UNM.md",
+    "dump/google-dump/unofficialtranscripts2020_UNM (2).md",
+    "dump/google-dump/unofficialtranscripts2020_UNM (1).md",
+    "dump/google-dump/Trainings, skills, experience.md",
+    "dump/google-dump/Trainings, skills, experience (2).md",
+    "dump/google-dump/Trainings, skills, experience (1).md",
+    "dump/google-dump/TOOLS.md",
+    "dump/google-dump/TOOLS (2).md",
+    "dump/google-dump/TOOLS (1).md",
+    "dump/google-dump/ThomasLoS_Thomas.md",
+    "dump/google-dump/ThomasLoS_Thomas (2).md",
+    "dump/google-dump/ThomasLoS_Thomas (1).md",
+    "dump/google-dump/the_scaffold.md",
+    "dump/google-dump/tension_evolution.png",
+    "dump/google-dump/tension_evolution (1).png",
+    "dump/google-dump/Screenshot 2025-11-12 183626.png",
+    "dump/google-dump/Screenshot 2025-08-07 at 5.39.42 PM.png",
+    "dump/google-dump/Screenshot 2025-07-08 at 8.31.57 PM.png",
+    "dump/google-dump/Screenshot 2025-06-24 at 2.53.09 PM.png",
+    "dump/google-dump/Screenshot 2025-06-24 at 2.53.09 PM (1).png"
   ]
 }
