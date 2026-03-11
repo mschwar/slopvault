@@ -1,0 +1,14 @@
+What percentage of worlds gdp require chips or relies on semiconductors?
+
+
+Thought for 2m 49s
+There is no single authoritative percentage for this, because "requires chips" can mean very different things.
+
+A strict lower bound is about 0.8% of world GDP. But that badly understates how much GDP relies on semiconductors.
+
+
+Would it be safe to assume that over 80% of all gdp has a semiconductor present somewhere in its supply chain?
+
+
+Thought for 2m 31s
+Yes - as a loose heuristic, "over 80%" is plausible. As a hard quantitative claim, it is not safe unless you label it clearly as an inference rather than a measured statistic.

@@ -1,0 +1,7 @@
+{
+  "kind": "source_json_upload",
+  "providerHint": "openai",
+  "expectedProvider": "openai",
+  "expectedSurface": "codex-cli",
+  "expectedRoles": ["prompt", "response", "response"]
+}

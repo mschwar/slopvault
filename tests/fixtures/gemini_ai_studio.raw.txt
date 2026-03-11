@@ -1,0 +1,7 @@
+aistudio.google.com
+User 12:46 PM
+Turn this notes dump into a real product brief.
+
+Model 12:46 PM
+Expand to view model thoughts
+The product brief should focus on ingestion, provenance preservation, and lock-in through structured review of raw source material.
