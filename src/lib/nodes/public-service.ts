@@ -1,18 +1,21 @@
 import { createClient } from "@supabase/supabase-js";
-import { getNodeArtifacts, getNodeRecord } from "@/lib/nodes/store";
 import type { NodeBundle } from "@/lib/ingestions/types";
 
-// Note: Using a non-auth-wrapped client for public reads if needed, 
-// but store.ts uses createClient from @/lib/supabase/server which gets current user.
-// For public views, we need a service that doesn't require a logged in user.
-
-// I'll create a dedicated public client for this.
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const publicClient = createClient(supabaseUrl, supabaseAnonKey);
+function getPublicClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Supabase environment variables are not configured");
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+}
 
 export async function getPublicNodeBundle(nodeId: string): Promise<NodeBundle> {
-  const { data: nodeData, error: nodeError } = await publicClient
+  const supabase = getPublicClient();
+  
+  const { data: nodeData, error: nodeError } = await supabase
     .from("nodes")
     .select("*")
     .eq("id", nodeId)
@@ -21,7 +24,7 @@ export async function getPublicNodeBundle(nodeId: string): Promise<NodeBundle> {
 
   if (nodeError || !nodeData) throw new Error("Public node not found");
 
-  const { data: artifactsData, error: artifactsError } = await publicClient
+  const { data: artifactsData, error: artifactsError } = await supabase
     .from("node_artifacts")
     .select("artifacts (*)")
     .eq("node_id", nodeId)
