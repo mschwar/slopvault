@@ -55,26 +55,26 @@ Output: Clean Markdown + metadata JSON
 
 | File | Source | Method | Description |
 |------|--------|--------|-------------|
-| `gemini-raw-seed.md` | Gemini Web | Copy-paste | Initial research sprint output |
-| `gemini-2.txt` | Gemini Web | Copy-paste | Extended research material |
+| [`../gemini-raw-seed.md`](../gemini-raw-seed.md) | Gemini Web | Copy-paste | Initial research sprint output |
+| [`../../gemini-2.txt`](../../gemini-2.txt) | Gemini Web | Copy-paste | Extended research material |
 | *(many .txt files)* | Gemini Web | Copy-paste | Various conversation exports |
 
-## Root-Level Files (in dump/)
+## Canonical Files (Not In This Directory)
 
-- `gemini-raw-seed.md` — Seed material from Gemini
-- `gemini-2.txt` — Extended Gemini outputs
+- `dump/gemini-raw-seed.md` — Seed material from Gemini
+- `gemini-2.txt` (repo root) — Extended Gemini outputs
 
 ## Subdirectory Organization (Current)
 
 The `google-dump/` subdirectory contains numerous `.txt` files from various Gemini conversations. These need:
 
 1. Inventory/cataloging
-2. MANIFEST.md sidecars for key samples
+2. `MANIFEST-{filename}.md` sidecars for key samples
 3. Potential reorganization by export method
 
 ## Immediate TODO
 
-- [ ] Create MANIFEST.md for `gemini-raw-seed.md` (canonical test case)
+- [ ] Keep `dump/MANIFEST-gemini-raw-seed.md` up to date (canonical test case)
 - [ ] Inventory and document key `.txt` files
 - [ ] Define naming convention for mixed-source samples
 - [ ] Consider splitting by source surface (gemini-web/ vs ai-studio/)

@@ -56,10 +56,10 @@ Output: Clean Markdown + metadata JSON
 
 ## Root-Level Files
 
-Files in `dump/` root that are OpenAI-related:
+Related canonical samples live outside this directory:
 
-- `GPT-firstpass.md` — Initial research sprint output (copy-paste)
-- `GPT-original-seed.txt` — Original seed material
+- [`../GPT-firstpass.md`](../GPT-firstpass.md) — Initial research sprint output (copy-paste)
+- [`../../GPT-original-seed.txt`](../../GPT-original-seed.txt) — Original seed material (repo root)
 
 ## Adding New Samples
 

@@ -17,7 +17,7 @@ dump/_local/gemini-experiment-1.txt
     ↓
 Evaluate, clean, validate
     ↓
-Move to dump/google-dump/ with MANIFEST.md
+Move to dump/google-dump/ with `MANIFEST-{filename}.md`
     ↓
 Delete from _local/
 ```

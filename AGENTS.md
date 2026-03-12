@@ -61,7 +61,20 @@ For any frontend, UX, or visual work, read these before making changes:
 
 8. **Provenance before feed.** The public feed still matters, and the three feed modes remain part of the longer-term product direction. But early-stage differentiation comes from provenance-aware capture and retrieval, not from social mechanics. Do not build the feed before the parser, vault, metadata capture, related-item surfaces, and manual correction flows are working.
 
-9. **Respect the existing concept docs.** The files in `01_*`, `02_*`, `03_*` and `dump/` are archival. Do not modify them. They represent the founder's original thinking and should be preserved as-is.
+9. **Respect the concept docs and the test corpus.** The files in `01_*`, `02_*`, and `03_*` are archival. Preserve them as-is. The repo-root folder `dump/` is an active ingestion test corpus and holding area (provider buckets and export-method experiments). Preserve raw files exactly when possible; add sidecar notes/manifests instead of editing source data.
+
+## Corpus Steward
+
+This repo treats corpus hygiene as production work. A parser is only as good as the samples it is tested against.
+
+Rules:
+
+1. Do not commit private exports or PII. Use `dump/_private/` or `dump/_local/` (both gitignored) for anything sensitive or WIP.
+2. Keep committed samples in provider buckets (`dump/openai-dump/`, `dump/google-dump/`, etc.) and preserve raw files when possible.
+3. Prefer sidecars over edits. Use `MANIFEST-{filename}.md` for per-sample notes. Use `MANIFEST.md` only for directory-level inventories.
+4. Canonical repo-root seed files live outside `dump/`:
+   `GPT-original-seed.txt` and `gemini-2.txt`.
+5. If you add a new export method, document it in the provider README and add at least one reduced fixture under `tests/fixtures/` when it’s stable enough.
 
 ## What Is Real vs. Assumed
 

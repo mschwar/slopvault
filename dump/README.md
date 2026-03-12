@@ -17,10 +17,16 @@ dump/
 ├── MANIFEST-{sample}.md      # Sidecar manifests for key samples
 ├── gemini-raw-seed.md        # Canonical test case (Gemini)
 ├── GPT-firstpass.md          # OpenAI sample
-├── GPT-original-seed.txt     # OpenAI seed material
 ├── Grok-firstpass.md         # xAI sample
-└── gemini-2.txt              # Extended Gemini material
+└── (plus provider directories and optional sidecars)
 ```
+
+## Canonical Repo-Root Seed Files
+
+These canonical MVP seed materials live at the repo root (not inside `dump/`):
+
+- [`GPT-original-seed.txt`](../GPT-original-seed.txt)
+- [`gemini-2.txt`](../gemini-2.txt)
 
 ## Quick Reference
 
@@ -36,7 +42,7 @@ dump/
 ## Working Rules
 
 1. **Preserve raw files** — Keep source material as close to original format as possible
-2. **Add sidecars, don't edit** — Use MANIFEST.md files instead of cleaning source data
+2. **Add sidecars, don't edit** — Prefer `MANIFEST-{filename}.md` sidecars instead of cleaning source data
 3. **Provider-native exports preferred** — Account exports over copy-paste when available
 4. **Preserve filenames** — Original names may contain useful metadata
 5. **Sensitive data to `_private/`** — Full exports with PII stay local-only
@@ -88,4 +94,4 @@ For important samples, create a `MANIFEST-{filename}.md` sidecar:
 
 - [INGESTION_CORPUS.md](/INGESTION_CORPUS.md) — Overall corpus documentation
 - [SCHEMA.md](/SCHEMA.md) — Data model for parsed artifacts
-- [AGENTS.md](/AGENTS.md) — Agent operating rules (especially "Corpus Steward" section)
+- [AGENTS.md](/AGENTS.md#corpus-steward) — Agent operating rules (corpus rules)

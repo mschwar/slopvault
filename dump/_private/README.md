@@ -25,7 +25,7 @@ Extract, sanitize, reduce
     ↓
 Copy relevant samples to dump/openai-dump/
     ↓
-Add MANIFEST.md sidecar describing the sample
+Add `MANIFEST-{filename}.md` sidecar describing the sample
 ```
 
 ## Security Notes
