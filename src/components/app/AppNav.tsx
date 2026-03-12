@@ -61,7 +61,7 @@ export function AppNav() {
               key={node.id}
               className="app-nav__link"
               data-active={pathname === `/nodes/${node.id}`}
-              href={`/nodes/${node.id}`}
+              href={`/nodes/${node.id}` as any}
               style={{ padding: "8px 14px", fontSize: "13px" }}
             >
               <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

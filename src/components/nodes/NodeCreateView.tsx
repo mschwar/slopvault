@@ -62,7 +62,7 @@ export function NodeCreateView() {
       }
 
       const { node } = await res.json();
-      router.push(`/nodes/${node.id}`);
+      router.push(`/nodes/${node.id}` as any);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create node");

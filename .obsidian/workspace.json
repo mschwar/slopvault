@@ -111,12 +111,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "scratchpad/seeds-trace-spec.md",
+                "file": "BACKLOG.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "seeds-trace-spec"
+              "title": "BACKLOG"
             }
           }
         ],
@@ -282,8 +282,11 @@
       "bases:Create new base": false
     }
   },
-  "active": "82ec293a38b952f2",
+  "active": "c35e8e312293a4d2",
   "lastOpenFiles": [
+    "RUNBOOK.md",
+    "ROADMAP.md",
+    "scratchpad/seeds-trace-spec.md",
     "dump/xai-dump/README.md",
     "dump/openai-dump/README.md",
     "dump/anthropic-dump/README.md",
@@ -320,9 +323,6 @@
     "dump/google-dump/TOOLS (2).md",
     "dump/google-dump/TOOLS (1).md",
     "dump/google-dump/ThomasLoS_Thomas.md",
-    "dump/google-dump/ThomasLoS_Thomas (2).md",
-    "dump/google-dump/ThomasLoS_Thomas (1).md",
-    "dump/google-dump/the_scaffold.md",
     "dump/google-dump/tension_evolution.png",
     "dump/google-dump/tension_evolution (1).png",
     "dump/google-dump/Screenshot 2025-11-12 183626.png",

@@ -185,6 +185,13 @@ export interface CreateDraftInput {
   sourceSurfaceHint?: string;
 }
 
+export interface AnalyzeIngestionInput {
+  rawText?: string;
+  audioLinks?: string[];
+  sourceProviderHint?: SourceProvider | "auto";
+  sourceSurfaceHint?: string;
+}
+
 export interface UpdateIngestionItemInput {
   include?: boolean;
   title?: string | null;

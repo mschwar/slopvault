@@ -1,26 +1,29 @@
 import { describe, expect, test } from "vitest";
 import { buildDumpSavePlan } from "@/components/dump/save-plan";
-import type { IngestPreviewResponse } from "@/lib/ingest-contract";
+import type { IngestPreviewResponse, IngestMode } from "@/lib/ingest-contract";
 
-function previewWithMode(mode: string): IngestPreviewResponse {
+function previewWithMode(mode: IngestMode): IngestPreviewResponse {
   return {
+    receivedAt: new Date().toISOString(),
+    itemCount: 1,
     items: [
       {
         id: "item-1",
-        position: 0,
-        artifactType: "text",
-        contentRole: "artifact",
         title: "Preview",
-        rawText: "",
-        parsedMarkdown: "",
-        tags: [],
-        defaultInclude: true,
+        artifactType: "text",
+        presentation: "artifact_only",
+        summary: "summary",
+        metadata: {
+          parserVersion: "0.1.0",
+          visibility: "private",
+        },
+        warnings: [],
         classification: {
           mode,
           confidence: "high",
-          provider: null,
-          surface: null,
-          notes: [],
+          artifactType: "text",
+          reasons: [],
+          signals: [],
         },
       },
     ],
@@ -38,17 +41,21 @@ describe("buildDumpSavePlan (/dump save logic)", () => {
 
     expect(actions).toEqual([
       {
+        type: "audio_link",
+        url: "https://suno.com/song/mixed123",
+      },
+      {
         type: "artifact_batch",
         includeFiles: true,
-        audioLinks: ["https://suno.com/song/mixed123"],
+        audioLinks: [],
       },
     ]);
   });
 
-  test("creates two ingestions when non-audio text and files are present", () => {
+  test("batches conversation items correctly", () => {
     const actions = buildDumpSavePlan({
-      textInput: "Some pasted conversation text",
-      filesCount: 2,
+      textInput: "User: hi\nAssistant: hello",
+      filesCount: 0,
       preview: previewWithMode("conversation_paste"),
     });
 
@@ -60,4 +67,3 @@ describe("buildDumpSavePlan (/dump save logic)", () => {
     });
   });
 });
-

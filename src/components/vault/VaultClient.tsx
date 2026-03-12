@@ -51,7 +51,7 @@ export function VaultClient() {
 
   const handleCreateNode = () => {
     const ids = Array.from(selectedIds).join(",");
-    router.push(`/nodes/new?ids=${ids}`);
+    router.push(`/nodes/new?ids=${ids}` as any);
   };
 
   const emptyLabel = error ? error : "Nothing has been saved yet.";

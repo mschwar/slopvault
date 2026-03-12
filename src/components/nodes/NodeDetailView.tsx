@@ -121,7 +121,9 @@ export function NodeDetailView({ nodeId }: { nodeId: string }) {
 
               <div className="artifact-meta" style={{ marginTop: "12px", display: "flex", gap: "8px", opacity: 0.7 }}>
                  <span className="meta-chip">{artifact.type}</span>
-                 {artifact.metadata.source_model && <span className="meta-chip">{String(artifact.metadata.source_model)}</span>}
+                 {artifact.metadata.source_model ? (
+                   <span className="meta-chip">{String(artifact.metadata.source_model)}</span>
+                 ) : null}
               </div>
             </section>
           ))
