@@ -77,3 +77,27 @@ export async function deleteNode(nodeId: string): Promise<void> {
 
   await deleteNodeRecord(nodeId);
 }
+
+export async function forkNode(nodeId: string): Promise<NodeRecord> {
+  const userId = await getUserId();
+  
+  // Get the source node
+  const sourceNode = await getNodeRecord(nodeId);
+  if (!sourceNode) throw new Error("Node not found");
+  if (sourceNode.visibility !== "public") throw new Error("Cannot fork private nodes");
+  
+  // Get the source artifacts
+  const sourceArtifacts = await getNodeArtifacts(nodeId);
+  
+  // Create the forked node
+  const forkedNode = await createNodeRecord({
+    userId,
+    title: `${sourceNode.title} (fork)`,
+    description: sourceNode.description ?? undefined,
+    hook: sourceNode.hook ?? undefined,
+    artifactIds: sourceArtifacts.map(a => a.id),
+    parentNodeId: nodeId,
+  });
+  
+  return forkedNode;
+}

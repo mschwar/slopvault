@@ -46,6 +46,7 @@ export async function createNodeRecord(input: {
   description?: string;
   hook?: string;
   artifactIds: string[];
+  parentNodeId?: string;
 }): Promise<NodeRecord> {
   const supabase = await createClient();
 
@@ -56,6 +57,7 @@ export async function createNodeRecord(input: {
       title: input.title,
       description: input.description,
       hook: input.hook,
+      parent_node_id: input.parentNodeId,
     })
     .select()
     .single();
