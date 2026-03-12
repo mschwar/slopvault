@@ -2,32 +2,34 @@
 
 ## Orienting Yourself
 
-This is a greenfield project. No application code exists yet. The repo contains:
+This repo is a working Next.js prototype for the ingestion MVP. It contains:
 
-1. **Concept documents** (the `01_*`, `02_*`, `03_*` files and `dump/` folder) — these are the founder's original thinking. Read them for context but do not modify them.
-2. **Project scaffolding docs** (this file, plus `README.md`, `AGENTS.md`, `PRD.md`, `ARCHITECTURE.md`, `ROADMAP.md`, `BACKLOG.md`, `SCHEMA.md`, `GATE_CLOSEOUT.md`) — these are the structured handoff. They define what to build and how.
+1. **Concept documents** (the `01_*`, `02_*`, `03_*` files) — the founder's original thinking. Preserve these as-is.
+2. **Operating docs** (this file, plus `README.md`, `AGENTS.md`, `PRD.md`, `ARCHITECTURE.md`, `ROADMAP.md`, `BACKLOG.md`, `SCHEMA.md`, `CURRENT_STATE.md`, `GATE_CLOSEOUT.md`) — the structured handoff. Prefer these over stale assumptions.
 3. **Scratchpad notes** (`scratchpad/`) — exploratory thinking and sketches. Useful for product discovery, but not the source of truth.
-4. **Starter directories** (`src/app/`, `src/lib/`, `src/components/`) — empty placeholders for the Next.js application.
+4. **Application source** (`src/`) — Next.js app routes/components plus a local ingestion service (`/api/ingestions/*`).
+5. **Ingestion test corpus** (`dump/`) — an active holding area used to build and test the ingestion pipeline. This is raw material, not app code. It may contain sensitive exports; treat it accordingly.
 
 Important context: The founder is an anthropologist, not a developer. They evaluate the product by using it, not by reading code. Write self-documenting code. See `AGENTS.md` for the full founder context and the origin story that defines the product.
 
 Start here:
 - Read `AGENTS.md` for rules, constraints, and the founding use case.
 - Read `PRD.md` for what the product does and the canonical test case.
+- Read `CURRENT_STATE.md` for what is confirmed working right now.
 - Read `BACKLOG.md` for what to do next.
 
 ## Commands
 
-As of this writing, no application code exists. Once the Next.js project is initialized (P0-1), the expected commands are:
+Core commands:
 
 ```bash
 npm install          # Install dependencies
 npm run dev          # Start development server
 npm run build        # Production build
-npm run test         # Run tests (once test framework is added)
+npm test             # Run tests
 ```
 
-Supabase CLI commands (once configured):
+Supabase CLI commands (present but not validated in this repo pass):
 
 ```bash
 npx supabase start   # Start local Supabase instance
@@ -39,8 +41,8 @@ npx supabase gen types typescript --local  # Generate TypeScript types from sche
 
 After any implementation work, check:
 
-1. **Does `npm run dev` still start?** If not, fix it before doing anything else.
-2. **Does the parser/import pipeline handle the test cases?** Run parser tests. If any fail, the ingestion pipeline is the priority.
+1. **Do `npm test` and `npm run build` still pass?** If not, fix that before adding scope.
+2. **Does `/dump` still commit artifacts into the local ingestion store?** If not, start by inspecting `/api/ingestions/*` routes and `src/lib/ingestions/service.ts`.
 3. **Does provenance metadata look useful?** Verify that source model, source surface, timestamps, and other detectable signals are being captured rather than silently dropped.
 4. **Do related-item suggestions feel reasonable?** If artifact-linking heuristics are clearly wrong, fix them or make them more conservative.
 5. **Does it look right in dark mode?** Open the browser. If anything renders with a white background or light-mode defaults, fix it immediately.
@@ -50,7 +52,7 @@ After any implementation work, check:
 
 ## Adding Structure Without Drifting
 
-The main risk in a greenfield project is building things that sound useful but aren't on the critical path. Before adding any new file, component, or feature, ask:
+The main risk is building “a platform” instead of shipping a reliable parser + vault loop. Before adding any new file, component, or feature, ask:
 
 1. **Is this in `BACKLOG.md`?** If not, is it a prerequisite for something that is?
 2. **Does this serve the core loop?** (Ingest → parse/import → save → retrieve → see provenance/related items → manually correct → share/publish.) If it's unrelated to that loop and we're still in Phase 0 or 1, it should wait.
@@ -68,15 +70,14 @@ src/
 │   │   ├── login/
 │   │   └── signup/
 │   ├── dump/               # The Dumpster (unified ingestion hub)
-│   ├── stash/              # The Stash (private vault)
+│   ├── vault/              # The vault (currently local ingestion store)
 │   ├── artifact/           # Artifact detail views and share pages
 │   ├── node/               # Node detail views (later phase)
 │   └── feed/               # Public feed (later phase)
 ├── lib/                    # Shared utilities
-│   ├── supabase.ts         # Supabase client setup
-│   ├── parser.ts           # The raw-text parser
-│   ├── provenance.ts       # Provenance normalization and linking helpers
-│   └── parser.test.ts      # Parser test cases
+│   ├── ingest.ts           # In-browser ingest preview builder/classifier
+│   ├── ingestions/         # Local ingestion service (store + extract + commit)
+│   └── ingest-contract.ts  # Contract types used across ingest preview/UI
 └── components/             # Reusable React components
     ├── ui/                 # Generic UI primitives
     ├── artifacts/          # Artifact-specific components

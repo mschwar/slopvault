@@ -48,6 +48,21 @@ describe("buildDumpSavePlan (/dump save logic)", () => {
     ]);
   });
 
+  test("creates two ingestions when non-audio text and files are present", () => {
+    const actions = buildDumpSavePlan({
+      textInput: "Some pasted conversation text",
+      filesCount: 2,
+      preview: previewWithMode("conversation_paste"),
+    });
+
+    expect(actions[0]?.type).toBe("text");
+    expect(actions[1]).toEqual({
+      type: "artifact_batch",
+      includeFiles: true,
+      audioLinks: [],
+    });
+  });
+
   test("batches conversation items correctly", () => {
     const actions = buildDumpSavePlan({
       textInput: "User: hi\nAssistant: hello",

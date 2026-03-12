@@ -3,15 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getIngestionsSnapshot } from "@/lib/ingestions/client-api";
 import type { ArtifactRecord } from "@/lib/ingestions/types";
-
-async function getIngestionsSnapshot(): Promise<{ artifacts: ArtifactRecord[] }> {
-  const res = await fetch("/api/ingestions");
-  if (!res.ok) {
-    throw new Error("Failed to load vault contents.");
-  }
-  return res.json();
-}
 
 export function VaultClient() {
   const [items, setItems] = useState<ArtifactRecord[]>([]);
