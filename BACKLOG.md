@@ -1,15 +1,27 @@
 # BACKLOG.md — SlopVault Prioritized Task List
 
-## P0 — Must happen first, blocks everything else
+## P0 — Stabilization (Current)
 
-### P0-1: Initialize Next.js project
-Create a Next.js 14+ app with App Router inside `src/`. Configure Tailwind with a dark-mode-only theme (utilitarian, brutalist, high info-density — no light mode toggle). Set up the base layout with a minimal nav shell. Confirm `npm run dev` works.
+The Next.js app exists with local file-based storage. P0 is about keeping the canonical ingest path stable and reducing data-loss edge cases.
 
-### P0-2: Set up Supabase project and schema
-Create a Supabase project. Write and apply SQL migrations for the initial schema (`profiles`, `artifacts`, `nodes`, `node_artifacts`, `votes` — see `SCHEMA.md`). Configure Row Level Security policies so users can only read/write their own private data. Set up a Supabase Storage bucket for image uploads. Set up the Supabase client in `src/lib/supabase.ts`.
+### P0-1: ✅ Next.js project initialized
+**Status:** Complete. Next.js 14+ with App Router exists in `src/`. Tailwind configured. `npm run dev` works.
 
-### P0-3: Build the parser/import pipeline ("God-Tier Text Parser")
-Implement the raw-text parser in `src/lib/parser.ts` and the ingest normalizers it depends on. It must:
+### P0-2: ⏳ Migrate from local JSON to Supabase
+**Status:** Pending. Currently using local file store (`$TMPDIR/slopvault-local-store/store.json`). Need to:
+- Create Supabase project
+- Apply SQL migrations (`profiles`, `artifacts`, `nodes`, `node_artifacts`, `votes` — see `SCHEMA.md`)
+- Configure RLS policies
+- Set up Supabase Storage bucket for images
+- Migrate ingestion service from JSON file to Postgres
+
+### P0-3: ✅ Parser/import pipeline ("God-Tier Text Parser")
+**Status:** Complete. Parser logic in `src/lib/ingestions/extract.ts`. Classification and extraction support:
+- Copy-pasted conversations from ChatGPT, Claude, Gemini, Grok
+- Provider export JSON/history files
+- Standalone prompts and standalone artifacts
+
+**Implementation:**
 - Accept a raw string (copy-pasted LLM output via Ctrl+A → Ctrl+V from a chat window).
 - Support ingestion classification for copy-pasted conversations, official provider export JSON/history files, standalone prompts, and standalone artifacts.
 - Detect the likely source model from UI artifacts.
@@ -19,16 +31,15 @@ Implement the raw-text parser in `src/lib/parser.ts` and the ingest normalizers 
 - Output clean Markdown + a metadata object with required fields `{ source_model, detected_prompt, raw_length, parsed_length, parser_version }` and optional provenance fields when detectable.
 - Handle at minimum: ChatGPT (including o-series "Thought for..." preambles), Claude, Gemini (including "Expand to view model thoughts" artifacts), and Grok output.
 
-### P0-4: Write parser test cases using the Substrate project
-Use the founder's actual Substrate research files as primary test data. Collect the raw pastes from `GPT-original-seed.txt`, `gemini-2.txt`, `dump/GPT-firstpass.md`, `dump/gemini-raw-seed.md`, and `dump/Grok-firstpass.md`. Write unit tests that verify the parser produces clean output and correct metadata for each. Also add 3-5 additional raw pastes from other LLM sessions. These test cases define product quality.
+### P0-4: ✅ Parser test cases using the Substrate project
+**Status:** Complete. Tests in `tests/extract.test.ts` covering provider-specific extraction for ChatGPT web, Claude web/desktop, Gemini web, Grok web, Codex CLI, Claude Code, and Gemini AI Studio. 17 tests passing.
 
-### P0-5: Normalize provenance signals
-Define the MVP provenance contract and implement the supporting utilities. At minimum:
-- normalize provider/model/surface labels into consistent metadata
-- normalize or extract timestamps where available
-- compute prompt fingerprints and prompt-family fingerprints when feasible
-- define what evidence lives in `artifacts.metadata` now versus what is deferred
-- keep the result artifact-first; do not introduce visible `seed`/`trace` objects yet
+### P0-5: ✅ Normalize provenance signals
+**Status:** Complete. Provenance utilities in `src/lib/ingestions/fingerprints.ts`. Metadata contract includes:
+- Normalized provider/model/surface labels
+- Captured timestamps
+- Prompt fingerprints
+- Evidence stored in `metadata` field (artifact-first, no visible seed/trace objects yet)
 
 ### P0-6: Build auth flow
 Implement sign-up and sign-in pages using Supabase Auth (email/password). Create a `profiles` table row on sign-up with a user-chosen pseudonym (no real names, no profile photos). Protect vault routes with auth middleware.
