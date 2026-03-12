@@ -2,11 +2,16 @@
 
 import Link from "next/link";
 import { startTransition, useMemo, useState } from "react";
-import { savePreviewItemsToDemoVault } from "@/lib/demo-vault";
 import {
   browserFilesToDescriptors,
   buildIngestPreview
 } from "@/lib/ingest";
+import {
+  analyzeIngestion,
+  commitIngestion,
+  createIngestionDraft,
+  uploadIngestionSource,
+} from "@/lib/ingestions/client-api";
 import type {
   IngestPreviewResponse,
   IngestSaveResponse
@@ -14,6 +19,7 @@ import type {
 import { MAX_BATCH_ARTIFACTS } from "@/lib/ingest-contract";
 import { PreviewList } from "@/components/dump/PreviewList";
 import { ProviderGuidePanel } from "@/components/dump/ProviderGuidePanel";
+import { buildDumpSavePlan } from "@/components/dump/save-plan";
 
 export function DumpWorkspace() {
   const [textInput, setTextInput] = useState("");
@@ -67,7 +73,28 @@ export function DumpWorkspace() {
     }
   }
 
-  function handleSave() {
+  async function commitTextIngestion(kind: Parameters<typeof createIngestionDraft>[0], rawText: string) {
+    const { ingestion } = await createIngestionDraft(kind);
+    const analyzed = await analyzeIngestion(ingestion.id, { rawText });
+    if (analyzed.items.length === 0) {
+      throw new Error("No items were extracted from the pasted text.");
+    }
+    return commitIngestion(ingestion.id);
+  }
+
+  async function commitArtifactBatchIngestion(batchFiles: File[], audioLinks: string[]) {
+    const { ingestion } = await createIngestionDraft("artifact_batch");
+    if (batchFiles.length > 0) {
+      await uploadIngestionSource(ingestion.id, batchFiles);
+    }
+    const analyzed = await analyzeIngestion(ingestion.id, { audioLinks });
+    if (analyzed.items.length === 0) {
+      throw new Error("No items were extracted from the uploaded batch.");
+    }
+    return commitIngestion(ingestion.id);
+  }
+
+  async function handleSave() {
     if (!preview || preview.items.length === 0) {
       setError("Preview something first, then save it.");
       return;
@@ -76,11 +103,52 @@ export function DumpWorkspace() {
     setError(null);
     setIsSaving(true);
 
-    startTransition(() => {
-      const receipt = savePreviewItemsToDemoVault(preview.items);
-      setSaveReceipt(receipt);
+    try {
+      const commits: Array<Awaited<ReturnType<typeof commitIngestion>>> = [];
+      const plan = buildDumpSavePlan({
+        textInput,
+        filesCount: files.length,
+        preview,
+      });
+
+      for (const action of plan) {
+        if (action.type === "text") {
+          commits.push(await commitTextIngestion(action.kind, action.rawText));
+        } else {
+          commits.push(
+            await commitArtifactBatchIngestion(
+              action.includeFiles ? files : [],
+              action.audioLinks,
+            ),
+          );
+        }
+      }
+
+      const artifacts = commits.flatMap((entry) => entry.artifacts);
+
+      const receipt: IngestSaveResponse = {
+        savedAt: new Date().toISOString(),
+        savedCount: artifacts.length,
+        receipts: artifacts.map((a) => ({
+          savedId: a.id,
+          title: a.title || "Untitled",
+          artifactType: a.type,
+          visibility: "private" as const,
+        })),
+      };
+
+      startTransition(() => {
+        setSaveReceipt(receipt);
+        setIsSaving(false);
+      });
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Save failed. Try again.",
+      );
       setIsSaving(false);
-    });
+    }
   }
 
   return (
@@ -193,14 +261,14 @@ export function DumpWorkspace() {
                 onClick={handleSave}
                 type="button"
               >
-                {isSaving ? "Saving..." : "Save to demo vault"}
+                {isSaving ? "Saving..." : "Save to vault"}
               </button>
             </div>
 
             {saveReceipt ? (
               <div className="save-banner" style={{ marginTop: "24px" }}>
                 Saved {saveReceipt.savedCount} item
-                {saveReceipt.savedCount === 1 ? "" : "s"} to the demo vault.
+                {saveReceipt.savedCount === 1 ? "" : "s"} to the vault.
                 {" "}
                 <Link href="/vault">Open the vault</Link>
               </div>
@@ -226,12 +294,12 @@ export function DumpWorkspace() {
           <section className="card">
             <h2 className="card__title">What this scaffold saves</h2>
             <p className="card__copy">
-              The current `/dump` implementation saves preview items into a local demo
-              vault so the end-to-end behavior can be tested before the real artifact
-              backend and parser/import pipeline are wired to Supabase.
+              The current `/dump` implementation commits ingestions via the local
+              ingestion API (`/api/ingestions`). The vault reads from the same local
+              store until Supabase persistence lands.
             </p>
             <div className="preview-meta">
-              <span className="meta-chip">local demo save</span>
+              <span className="meta-chip">local ingestion API</span>
               <span className="meta-chip">typed ingest contract</span>
               <span className="meta-chip">classification first</span>
             </div>
@@ -241,4 +309,3 @@ export function DumpWorkspace() {
     </div>
   );
 }
-
