@@ -2,11 +2,16 @@
 
 import Link from "next/link";
 import { startTransition, useMemo, useState } from "react";
-import { savePreviewItemsToDemoVault } from "@/lib/demo-vault";
 import {
   browserFilesToDescriptors,
   buildIngestPreview
 } from "@/lib/ingest";
+import {
+  commitIngestion,
+  createIngestionDraft,
+  analyzeIngestion,
+  uploadIngestionSource,
+} from "@/lib/ingestions/client-api";
 import type {
   IngestPreviewResponse,
   IngestSaveResponse
@@ -14,6 +19,7 @@ import type {
 import { MAX_BATCH_ARTIFACTS } from "@/lib/ingest-contract";
 import { PreviewList } from "@/components/dump/PreviewList";
 import { ProviderGuidePanel } from "@/components/dump/ProviderGuidePanel";
+import type { IngestionKind } from "@/lib/ingestions/types";
 
 export function DumpWorkspace() {
   const [textInput, setTextInput] = useState("");
@@ -67,7 +73,54 @@ export function DumpWorkspace() {
     }
   }
 
-  function handleSave() {
+  function kindForTextPreview(): IngestionKind {
+    const item = preview?.items[0];
+    const mode = item?.classification.mode;
+
+    if (mode === "standalone_prompt") {
+      return "prompt_only";
+    }
+
+    if (mode === "provider_export_json") {
+      return "source_json_upload";
+    }
+
+    return "conversation_paste";
+  }
+
+  function extractAudioLinks(): string[] {
+    const item = preview?.items[0];
+    if (!item || item.classification.mode !== "audio_link") {
+      return [];
+    }
+
+    const trimmed = textInput.trim();
+    return trimmed ? [trimmed] : [];
+  }
+
+  async function commitTextIngestion(rawText: string) {
+    const kind = kindForTextPreview();
+    const { ingestion } = await createIngestionDraft(kind);
+    const analyzed = await analyzeIngestion(ingestion.id, { rawText });
+    if (analyzed.items.length === 0) {
+      throw new Error("No items were extracted from the pasted text.");
+    }
+    return commitIngestion(ingestion.id);
+  }
+
+  async function commitArtifactBatchIngestion(batchFiles: File[], audioLinks: string[]) {
+    const { ingestion } = await createIngestionDraft("artifact_batch");
+    if (batchFiles.length > 0) {
+      await uploadIngestionSource(ingestion.id, batchFiles);
+    }
+    const analyzed = await analyzeIngestion(ingestion.id, { audioLinks });
+    if (analyzed.items.length === 0) {
+      throw new Error("No items were extracted from the uploaded batch.");
+    }
+    return commitIngestion(ingestion.id);
+  }
+
+  async function handleSave() {
     if (!preview || preview.items.length === 0) {
       setError("Preview something first, then save it.");
       return;
@@ -76,11 +129,50 @@ export function DumpWorkspace() {
     setError(null);
     setIsSaving(true);
 
-    startTransition(() => {
-      const receipt = savePreviewItemsToDemoVault(preview.items);
-      setSaveReceipt(receipt);
+    try {
+      const trimmed = textInput.trim();
+      const audioLinks = extractAudioLinks();
+
+      const commits: Array<Awaited<ReturnType<typeof commitIngestion>>> = [];
+
+      if (files.length > 0) {
+        if (trimmed && audioLinks.length === 0) {
+          // Preserve both the pasted text and the batch files by committing two ingestions.
+          commits.push(await commitTextIngestion(trimmed));
+        }
+
+        commits.push(await commitArtifactBatchIngestion(files, audioLinks));
+      } else if (audioLinks.length > 0) {
+        commits.push(await commitArtifactBatchIngestion([], audioLinks));
+      } else {
+        commits.push(await commitTextIngestion(trimmed));
+      }
+
+      const artifacts = commits.flatMap((entry) => entry.artifacts);
+
+      const receipt: IngestSaveResponse = {
+        savedAt: new Date().toISOString(),
+        savedCount: artifacts.length,
+        receipts: artifacts.map((a) => ({
+          savedId: a.id,
+          title: a.title || "Untitled",
+          artifactType: a.type,
+          visibility: "private" as const,
+        })),
+      };
+
+      startTransition(() => {
+        setSaveReceipt(receipt);
+        setIsSaving(false);
+      });
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Save failed. Try again."
+      );
       setIsSaving(false);
-    });
+    }
   }
 
   return (
@@ -193,14 +285,14 @@ export function DumpWorkspace() {
                 onClick={handleSave}
                 type="button"
               >
-                {isSaving ? "Saving..." : "Save to demo vault"}
+                {isSaving ? "Saving..." : "Save to vault"}
               </button>
             </div>
 
             {saveReceipt ? (
               <div className="save-banner" style={{ marginTop: "24px" }}>
                 Saved {saveReceipt.savedCount} item
-                {saveReceipt.savedCount === 1 ? "" : "s"} to the demo vault.
+                {saveReceipt.savedCount === 1 ? "" : "s"} to the vault.
                 {" "}
                 <Link href="/vault">Open the vault</Link>
               </div>
@@ -226,12 +318,12 @@ export function DumpWorkspace() {
           <section className="card">
             <h2 className="card__title">What this scaffold saves</h2>
             <p className="card__copy">
-              The current `/dump` implementation saves preview items into a local demo
-              vault so the end-to-end behavior can be tested before the real artifact
-              backend and parser/import pipeline are wired to Supabase.
+              The current `/dump` implementation commits ingestions through the local
+              API ingestion pipeline (`/api/ingestions`) so the end-to-end behavior can
+              be tested before durable persistence is wired up.
             </p>
             <div className="preview-meta">
-              <span className="meta-chip">local demo save</span>
+              <span className="meta-chip">local ingestion API</span>
               <span className="meta-chip">typed ingest contract</span>
               <span className="meta-chip">classification first</span>
             </div>
@@ -241,4 +333,3 @@ export function DumpWorkspace() {
     </div>
   );
 }
-
