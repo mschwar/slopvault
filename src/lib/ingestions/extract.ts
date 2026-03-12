@@ -83,14 +83,14 @@ function detectProvider(
     return providerHint;
   }
 
-  if (/Thought for \d+m \d+s/i.test(rawText) || rawText.includes("chat.html")) {
-    return "openai";
-  }
   if (
     rawText.includes("Expand to view model thoughts") ||
     rawText.includes("gstatic.com/aistudio/watermark")
   ) {
     return "google";
+  }
+  if (/Thought for \d+m \d+s/i.test(rawText) || rawText.includes("chat.html")) {
+    return "openai";
   }
   if (rawText.includes('"toolu_') || rawText.includes("Claude Code")) {
     return "anthropic";

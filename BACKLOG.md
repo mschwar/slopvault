@@ -5,7 +5,7 @@
 The Next.js app exists with local file-based storage. P0 is about keeping the canonical ingest path stable and reducing data-loss edge cases.
 
 ### P0-1: ✅ Next.js project initialized
-**Status:** Complete. Next.js 14+ with App Router exists in `src/`. Tailwind configured. `npm run dev` works.
+**Status:** Complete. Next.js App Router exists in `src/`. Styling is currently plain CSS (`src/app/globals.css`), not Tailwind. `npm run dev` works.
 
 ### P0-2: ⏳ Migrate from local JSON to Supabase
 **Status:** Pending. Currently using local file store (`$TMPDIR/slopvault-local-store/store.json`). Need to:
@@ -15,31 +15,41 @@ The Next.js app exists with local file-based storage. P0 is about keeping the ca
 - Set up Supabase Storage bucket for images
 - Migrate ingestion service from JSON file to Postgres
 
-### P0-3: ✅ Parser/import pipeline ("God-Tier Text Parser")
-**Status:** Complete. Parser logic in `src/lib/ingestions/extract.ts`. Classification and extraction support:
+### P0-3: ⏳ Parser/import pipeline ("God-Tier Text Parser")
+**Status:** Baseline implemented. Extraction logic lives in `src/lib/ingestions/extract.ts` and supports:
 - Copy-pasted conversations from ChatGPT, Claude, Gemini, Grok
 - Provider export JSON/history files
 - Standalone prompts and standalone artifacts
 
-**Implementation:**
-- Accept a raw string (copy-pasted LLM output via Ctrl+A → Ctrl+V from a chat window).
-- Support ingestion classification for copy-pasted conversations, official provider export JSON/history files, standalone prompts, and standalone artifacts.
-- Detect the likely source model from UI artifacts.
-- Detect the likely source surface when possible (`chatgpt-web`, `claude-web`, `gemini-web`, etc.).
-- Strip non-content elements (thinking indicators like "Thought for 2m 49s", copy-button text, model labels, Gemini watermark images, timestamp lines).
-- Separate prompt from response where detectable.
-- Output clean Markdown + a metadata object with required fields `{ source_model, detected_prompt, raw_length, parsed_length, parser_version }` and optional provenance fields when detectable.
-- Handle at minimum: ChatGPT (including o-series "Thought for..." preambles), Claude, Gemini (including "Expand to view model thoughts" artifacts), and Grok output.
+**What it actually emits today (audited):**
+- `sourceProvider` (`openai|google|anthropic|xai|unknown`) from heuristics + optional hint
+- `sourceSurface` inferred per provider (e.g. `chatgpt-web`, `gemini-web`, `claude-web-desktop`)
+- Extracted items with:
+  - `contentRole` (`prompt|response|artifact|audio_link`)
+  - `parsedMarkdown`
+  - `metadata.content_role` always set
+  - prompt-only: `metadata.prompt_fingerprint` and `metadata.prompt_family_fingerprint`
+- Parser version constant: `PARSE_VERSION`
+
+**Known gaps (still backlog):**
+- Reliable `source_model` attribution beyond heuristics
+- Timestamp capture/normalization
+- Explicit `raw_length` / `parsed_length` fields
 
 ### P0-4: ✅ Parser test cases using the Substrate project
-**Status:** Complete. Tests in `tests/extract.test.ts` covering provider-specific extraction for ChatGPT web, Claude web/desktop, Gemini web, Grok web, Codex CLI, Claude Code, and Gemini AI Studio. 17 tests passing.
+**Status:** Complete. Tests cover provider-specific extraction fixtures (`tests/extract.test.ts`) and include substrate corpus smoke tests that load real files from `dump/` (`tests/substrate.test.ts`). (20 tests passing.)
 
-### P0-5: ✅ Normalize provenance signals
-**Status:** Complete. Provenance utilities in `src/lib/ingestions/fingerprints.ts`. Metadata contract includes:
-- Normalized provider/model/surface labels
-- Captured timestamps
-- Prompt fingerprints
-- Evidence stored in `metadata` field (artifact-first, no visible seed/trace objects yet)
+### P0-5: ⏳ Normalize provenance signals
+**Status:** Partial. Provenance utilities exist in `src/lib/ingestions/fingerprints.ts` and the ingestion flow stores best-effort evidence in `artifacts.metadata`, but the full contract described in PRD/SCHEMA is not complete yet.
+
+**Implemented:**
+- Prompt fingerprints (`prompt_fingerprint`, `prompt_family_fingerprint`)
+- Source provider and surface hints (best-effort)
+
+**Missing (still required):**
+- Timestamp capture/normalization
+- More reliable model attribution
+- Clear contract for which provenance fields are guaranteed vs best-effort
 
 ### P0-6: Build auth flow
 Implement sign-up and sign-in pages using Supabase Auth (email/password). Create a `profiles` table row on sign-up with a user-chosen pseudonym (no real names, no profile photos). Protect vault routes with auth middleware.

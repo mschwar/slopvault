@@ -6,18 +6,18 @@
 
 **What exists:**
 - Next.js 14+ app with App Router in `src/`
-- Tailwind with dark-mode-only theme (utilitarian, brutalist)
+- Styling is currently plain CSS (`src/app/globals.css`), not Tailwind (Tailwind remains a target-state option)
 - Local ingestion service (`src/lib/ingestions/service.ts`) using JSON file store
 - `/dump` route: The Dumpster ingestion UI (paste + drop files, preview, commit)
 - `/vault` route: reads committed artifacts from local store
 - `/api/ingestions/*` endpoints: create → analyze → commit flow
-- Parser tested against ChatGPT, Claude, Gemini, Grok raw pastes
-- Provenance metadata contract defined and implemented
-- 17 unit tests passing
+- Parser tested against provider fixtures plus substrate corpus smoke samples in `dump/` (see `tests/substrate.test.ts`)
+- Provenance is partial: provider/surface + prompt fingerprints exist; timestamps/model attribution are still incomplete
+- 20 unit tests passing
 
 **Naming note:** `/dump` (UI route) vs `dump/` (repo corpus directory) — be aware of this collision.
 
-**Exit criteria:** ✅ All met except Supabase connection (deferred to Gate 2).
+**Exit criteria:** ✅ Canonical ingest loop and local store wiring are met (Gate 1). Supabase connection and the full provenance contract are deferred (Gate 2+).
 
 ---
 
