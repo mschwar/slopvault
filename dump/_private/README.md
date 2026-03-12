@@ -30,7 +30,7 @@ Add `MANIFEST-{filename}.md` sidecar describing the sample
 
 ## Security Notes
 
-- This directory is listed in `.gitignore` (`dump/_private/`)
+- This directory's contents are ignored by `.gitignore` (`dump/_private/*`), except this README
 - Do not manually force-add files here
 - Keep exports encrypted at rest if they contain sensitive personal data
 - Delete exports when no longer needed for development

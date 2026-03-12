@@ -31,5 +31,5 @@ Delete from _local/
 
 ## Git Status
 
-This directory is **gitignored** (`dump/_local/` in `.gitignore`).
+This directory's contents are ignored by `.gitignore` (`dump/_local/*`), except this README.
 Files here are strictly local-only.
