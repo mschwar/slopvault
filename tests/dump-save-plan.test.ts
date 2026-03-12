@@ -41,13 +41,9 @@ describe("buildDumpSavePlan (/dump save logic)", () => {
 
     expect(actions).toEqual([
       {
-        type: "audio_link",
-        url: "https://suno.com/song/mixed123",
-      },
-      {
         type: "artifact_batch",
         includeFiles: true,
-        audioLinks: [],
+        audioLinks: ["https://suno.com/song/mixed123"],
       },
     ]);
   });
@@ -59,11 +55,12 @@ describe("buildDumpSavePlan (/dump save logic)", () => {
       preview: previewWithMode("conversation_paste"),
     });
 
-    expect(actions[0]?.type).toBe("text");
-    expect(actions[1]).toEqual({
-      type: "artifact_batch",
-      includeFiles: true,
-      audioLinks: [],
-    });
+    expect(actions).toEqual([
+      {
+        type: "text",
+        kind: "conversation_paste",
+        rawText: "User: hi\nAssistant: hello",
+      }
+    ]);
   });
 });
