@@ -136,10 +136,17 @@ export function DumpWorkspace() {
       const commits: Array<Awaited<ReturnType<typeof commitIngestion>>> = [];
 
       if (files.length > 0) {
+        // INTENTIONAL TWO-INGESTION MODEL: The service layer requires different
+        // ingestion kinds for text vs. files. We preserve all user input by
+        // creating separate ingestions rather than silently dropping data.
+        // See LESSONS.md "Two-Ingestion Model is Intentional (For Now)"
         if (trimmed && audioLinks.length === 0) {
-          // Preserve both the pasted text and the batch files by committing two ingestions.
+          // Text is not an audio link — save it as its own ingestion.
           commits.push(await commitTextIngestion(trimmed));
         }
+        // BUG: If text IS an audio link (audioLinks.length > 0) and files exist,
+        // the audio links are silently ignored here. The fix is to pass audioLinks
+        // to commitArtifactBatchIngestion (which already supports them server-side).
 
         commits.push(await commitArtifactBatchIngestion(files, audioLinks));
       } else if (audioLinks.length > 0) {
