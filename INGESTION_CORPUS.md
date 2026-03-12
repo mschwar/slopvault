@@ -2,99 +2,47 @@
 
 ## Purpose
 
-This repo uses **repo-root `dump/`** as the active ingestion test corpus and holding area for raw source material used to build and test the ingestion pipeline.
+This repo keeps an **active ingestion test corpus** on disk so the parser/ingestion pipeline can be developed against real-ish mess.
 
 It is not app source code.
 It is not the same thing as the route `/dump` (the app UI).
-It is not the same thing as `tests/fixtures/`.
+It is not the same thing as `tests/fixtures/` (reduced goldens for automated tests).
 
-Naming collision note:
+## Naming Collision (Important)
 
-- Route `/dump` = the ingestion UI (“The Dumpster”).
-- Folder `dump/` = the on-disk corpus used for testing the ingestion pipeline.
+- Route `/dump` = the ingestion UI ("The Dumpster").
+- Folder `dump/` = the on-disk corpus used for ingestion testing.
 
 ## Roles
 
 - `dump/`
-  Active ingestion test corpus and holding area (provider buckets and export-method experiments)
+  Shared corpus structure and (sanitized) samples that can live in git.
+- `dump/_private/` (gitignored)
+  Full-fidelity sensitive exports. Never commit.
+- `dump/_local/` (gitignored)
+  Personal scratch space and WIP samples. Never commit.
 - `tests/fixtures/`
-  Reduced goldens used by automated tests
-- `/dump`
-  User-facing app route for the ingestion MVP
+  Small stable fixtures used by tests.
 
-Optional local-only corpus:
+## Canonical MVP Seed Files
 
-- `ingestion-corpus/` (gitignored)
-  Full-fidelity user exports that should not be committed (often large and sensitive)
+These are repo-root canonical materials (not inside `dump/`):
 
-## Current Structure
+- `GPT-original-seed.txt`
+- `gemini-2.txt`
 
-```text
-dump/
-  openai-dump/
-  anthropic-dump/
-  google-dump/
-  xai-dump/
-```
+Provider bucket READMEs may reference them via relative paths.
 
-These are provider buckets first.
-Some are already close to one export method.
-Some (especially `google-dump/`) are still mixed holding areas and need later normalization by export method or source surface.
+## Manifest Convention
 
-## What Each Sample Should Tell Us
-
-For parser or ingestion work, each meaningful sample should eventually make four things obvious:
-
-1. provider
-2. export or capture method
-3. expected ingestion path
-4. expected provenance signals
-
-## Recommended Organization
-
-Preferred long-term shape:
-
-```text
-dump/
-  openai/
-    chatgpt-account-export/
-    chatgpt-web-copy/
-    codex-cli/
-  anthropic/
-    claude-export/
-    claude-web-copy/
-    claude-code/
-  google/
-    gemini-web-copy/
-    gemini-ai-studio/
-    google-takeout/
-  xai/
-    grok-web-copy/
-    xai-export/
-```
-
-The repo is not fully there yet. When reorganizing, prefer adding structure around existing raw files rather than rewriting or cleaning the raw files themselves.
+- Per-sample sidecar: `MANIFEST-{filename}.md`
+  Example: `dump/MANIFEST-gemini-raw-seed.md`
+- Optional per-directory index: `MANIFEST.md`
+  Use only when you need a directory-level inventory (not as a replacement for per-sample sidecars).
 
 ## Working Rules
 
 - Preserve raw files exactly when possible.
-- Add readmes, manifests, and sidecar notes instead of editing source data.
-- Derive small stable samples into `tests/fixtures/` for automation.
-- Do not treat code-like files in the corpus as app code.
-- Assume the corpus may contain sensitive material (do not commit private exports).
-
-## Current Gaps
-
-- `google-dump/` is still too broad and mixed.
-- Export method is not always obvious from directory structure alone.
-- There is no per-sample manifest standard yet.
-
-## Immediate Next Improvement
-
-Add lightweight per-provider notes and, for the most important samples, sidecar manifests that record:
-
-- source provider
-- source surface or export method
-- file type
-- intended ingestion kind
-- known parser expectations
+- Add sidecars/manifests instead of editing source exports.
+- Treat anything in `_private/` and `_local/` as sensitive by default.
+- Derive minimal fixtures into `tests/fixtures/` when a case should be automated.

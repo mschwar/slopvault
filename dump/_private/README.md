@@ -1,16 +1,36 @@
-# dump/_private
+# Private Dump Directory
 
-This directory is for **full-fidelity, sensitive exports** that should **never be committed**.
+This directory is for **full-fidelity, sensitive exports** that should **never be committed** to the repository.
 
-It exists so you can work with real user export histories locally while keeping the committed corpus (`dump/*-dump/`) sanitized.
+## Purpose
 
-Git behavior:
+- Store complete user data exports containing private conversations
+- Keep large export files that exceed reasonable repo size limits
+- Hold sensitive material that requires access control
 
-- Contents are ignored by `.gitignore` (`dump/_private/*`).
-- This README remains tracked so the directory purpose is visible.
+## Usage
 
-Working rules:
+1. Place full provider exports here during local development
+2. Reference files here when creating reduced test samples for `dump/<provider>/`
+3. **Never commit files from this directory** — it's gitignored
 
-- Do not force-add files from here.
-- Prefer deriving reduced samples into the provider buckets (`dump/openai-dump/`, etc.) plus `MANIFEST-{filename}.md` sidecars.
+## Workflow
 
+```
+Full export (private/sensitive)
+    ↓
+dump/_private/chatgpt-export-2026-03-11.zip
+    ↓
+Extract, sanitize, reduce
+    ↓
+Copy relevant samples to dump/openai-dump/
+    ↓
+Add `MANIFEST-{filename}.md` sidecar describing the sample
+```
+
+## Security Notes
+
+- This directory's contents are ignored by `.gitignore` (`dump/_private/*`), except this README
+- Do not manually force-add files here
+- Keep exports encrypted at rest if they contain sensitive personal data
+- Delete exports when no longer needed for development

@@ -1,74 +1,122 @@
-import { randomUUID } from "node:crypto";
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
+import { createClient } from "@/lib/supabase/server";
 import type {
   ArtifactLinkRecord,
   ArtifactRecord,
   IngestionItemRecord,
   IngestionRecord,
-  LocalDataStore,
 } from "@/lib/ingestions/types";
 
-const DEFAULT_STORE_DIR = path.join(os.tmpdir(), "slopvault-local-store");
-const STORE_FILE = "store.json";
-
-function getStoreDir(): string {
-  return process.env.SLOPVAULT_STORE_DIR ?? DEFAULT_STORE_DIR;
+// Helper to map Supabase snake_case to camelCase
+function mapIngestion(row: any): IngestionRecord {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    kind: row.kind,
+    status: row.status,
+    sourceProvider: row.source_provider,
+    sourceSurface: row.source_surface,
+    rawText: row.raw_text,
+    rawFilePath: row.raw_file_path,
+    rawFileMime: row.raw_file_mime,
+    rawFileName: row.raw_file_name,
+    parseVersion: row.parse_version,
+    warnings: row.warnings || [],
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
 }
 
-async function ensureStore(): Promise<string> {
-  const storeDir = getStoreDir();
-  await mkdir(storeDir, { recursive: true });
-  const filePath = path.join(storeDir, STORE_FILE);
-
-  try {
-    await stat(filePath);
-  } catch {
-    const empty: LocalDataStore = {
-      ingestions: [],
-      ingestionItems: [],
-      artifacts: [],
-      artifactLinks: [],
-    };
-    await writeFile(filePath, JSON.stringify(empty, null, 2), "utf8");
-  }
-
-  return filePath;
+function mapItem(row: any): IngestionItemRecord {
+  return {
+    id: row.id,
+    ingestionId: row.ingestion_id,
+    position: row.position,
+    itemKind: row.item_kind,
+    artifactType: row.artifact_type,
+    contentRole: row.content_role,
+    rawText: row.raw_text,
+    parsedMarkdown: row.parsed_markdown,
+    title: row.title,
+    metadata: row.metadata || {},
+    tags: row.tags || [],
+    include: row.include,
+    createdAt: row.created_at,
+  };
 }
 
-export async function readStore(): Promise<LocalDataStore> {
-  const filePath = await ensureStore();
-  const raw = await readFile(filePath, "utf8");
-  return JSON.parse(raw) as LocalDataStore;
-}
-
-export async function writeStore(data: LocalDataStore): Promise<void> {
-  const filePath = await ensureStore();
-  await writeFile(filePath, JSON.stringify(data, null, 2), "utf8");
+function mapArtifact(row: any): ArtifactRecord {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    title: row.title,
+    type: row.type,
+    rawContent: row.raw_content,
+    parsedMarkdown: row.parsed_markdown,
+    storagePath: row.storage_path,
+    audioUrl: row.audio_url,
+    description: row.description,
+    metadata: row.metadata || {},
+    tags: row.tags || [],
+    visibility: row.visibility,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
 }
 
 export async function upsertIngestion(record: IngestionRecord): Promise<void> {
-  const data = await readStore();
-  const index = data.ingestions.findIndex((item) => item.id === record.id);
-  if (index >= 0) {
-    data.ingestions[index] = record;
-  } else {
-    data.ingestions.push(record);
-  }
-  await writeStore(data);
+  const supabase = await createClient();
+  const { error } = await supabase.from("ingestions").upsert({
+    id: record.id,
+    user_id: record.userId,
+    kind: record.kind,
+    status: record.status,
+    source_provider: record.sourceProvider,
+    source_surface: record.sourceSurface,
+    raw_text: record.rawText,
+    raw_file_path: record.rawFilePath,
+    raw_file_mime: record.rawFileMime,
+    raw_file_name: record.rawFileName,
+    parse_version: record.parseVersion,
+    warnings: record.warnings,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (error) throw error;
 }
 
 export async function replaceIngestionItems(
   ingestionId: string,
   items: IngestionItemRecord[],
 ): Promise<void> {
-  const data = await readStore();
-  data.ingestionItems = data.ingestionItems.filter(
-    (item) => item.ingestionId !== ingestionId,
+  const supabase = await createClient();
+  
+  // Delete existing items for this ingestion
+  const { error: deleteError } = await supabase
+    .from("ingestion_items")
+    .delete()
+    .eq("ingestion_id", ingestionId);
+    
+  if (deleteError) throw deleteError;
+
+  // Insert new items
+  const { error: insertError } = await supabase.from("ingestion_items").insert(
+    items.map((item) => ({
+      id: item.id,
+      ingestion_id: item.ingestionId,
+      position: item.position,
+      item_kind: item.itemKind,
+      artifact_type: item.artifactType,
+      content_role: item.contentRole,
+      raw_text: item.rawText,
+      parsed_markdown: item.parsedMarkdown,
+      title: item.title,
+      metadata: item.metadata,
+      tags: item.tags,
+      include: item.include,
+    })),
   );
-  data.ingestionItems.push(...items);
-  await writeStore(data);
+
+  if (insertError) throw insertError;
 }
 
 export async function updateIngestionItemRecord(
@@ -76,59 +124,126 @@ export async function updateIngestionItemRecord(
   itemId: string,
   updater: (item: IngestionItemRecord) => IngestionItemRecord,
 ): Promise<IngestionItemRecord | null> {
-  const data = await readStore();
-  const index = data.ingestionItems.findIndex(
-    (item) => item.ingestionId === ingestionId && item.id === itemId,
-  );
-  if (index < 0) {
-    return null;
-  }
-  data.ingestionItems[index] = updater(data.ingestionItems[index]);
-  await writeStore(data);
-  return data.ingestionItems[index];
+  const supabase = await createClient();
+  
+  // Get current item
+  const { data: current, error: getError } = await supabase
+    .from("ingestion_items")
+    .select("*")
+    .eq("ingestion_id", ingestionId)
+    .eq("id", itemId)
+    .single();
+    
+  if (getError || !current) return null;
+  
+  const updated = updater(mapItem(current));
+  
+  const { data: saved, error: updateError } = await supabase
+    .from("ingestion_items")
+    .update({
+      title: updated.title,
+      tags: updated.tags,
+      include: updated.include,
+    })
+    .eq("id", itemId)
+    .select()
+    .single();
+    
+  if (updateError) throw updateError;
+  return mapItem(saved);
 }
 
 export async function createArtifactsAndLinks(
   artifacts: ArtifactRecord[],
   links: ArtifactLinkRecord[],
 ): Promise<void> {
-  const data = await readStore();
-  data.artifacts.push(...artifacts);
-  data.artifactLinks.push(...links);
-  await writeStore(data);
+  const supabase = await createClient();
+  
+  const { error: artifactError } = await supabase.from("artifacts").insert(
+    artifacts.map((a) => ({
+      id: a.id,
+      user_id: a.userId,
+      title: a.title,
+      type: a.type,
+      raw_content: a.rawContent,
+      parsed_markdown: a.parsedMarkdown,
+      storage_path: a.storagePath,
+      audio_url: a.audioUrl,
+      description: a.description,
+      metadata: a.metadata,
+      tags: a.tags,
+      visibility: a.visibility,
+    })),
+  );
+  
+  if (artifactError) throw artifactError;
+  
+  if (links.length > 0) {
+    const { error: linkError } = await supabase.from("artifact_links").insert(
+      links.map((l) => ({
+        id: l.id,
+        user_id: l.userId,
+        from_artifact_id: l.fromArtifactId,
+        to_artifact_id: l.toArtifactId,
+        relationship_type: l.relationshipType,
+        confidence: l.confidence,
+        origin: l.origin,
+        ingestion_id: l.ingestionId,
+      })),
+    );
+    if (linkError) throw linkError;
+  }
 }
 
 export async function getIngestionBundle(ingestionId: string): Promise<{
   ingestion: IngestionRecord | null;
   items: IngestionItemRecord[];
 }> {
-  const data = await readStore();
+  const supabase = await createClient();
+  
+  const [ingestionRes, itemsRes] = await Promise.all([
+    supabase.from("ingestions").select("*").eq("id", ingestionId).single(),
+    supabase.from("ingestion_items").select("*").eq("ingestion_id", ingestionId).order("position"),
+  ]);
+  
   return {
-    ingestion: data.ingestions.find((item) => item.id === ingestionId) ?? null,
-    items: data.ingestionItems
-      .filter((item) => item.ingestionId === ingestionId)
-      .sort((a, b) => a.position - b.position),
+    ingestion: ingestionRes.data ? mapIngestion(ingestionRes.data) : null,
+    items: (itemsRes.data || []).map(mapItem),
   };
 }
 
 export async function listIngestions(): Promise<IngestionRecord[]> {
-  const data = await readStore();
-  return [...data.ingestions].sort((a, b) =>
-    a.updatedAt < b.updatedAt ? 1 : -1,
-  );
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("ingestions")
+    .select("*")
+    .order("updated_at", { ascending: false });
+    
+  if (error) throw error;
+  return (data || []).map(mapIngestion);
 }
 
-export async function listArtifacts(): Promise<ArtifactRecord[]> {
-  const data = await readStore();
-  return [...data.artifacts].sort((a, b) =>
-    a.updatedAt < b.updatedAt ? 1 : -1,
-  );
+export async function listArtifacts(search?: string): Promise<ArtifactRecord[]> {
+  const supabase = await createClient();
+  let query = supabase.from("artifacts").select("*");
+  
+  if (search) {
+    query = query.textSearch("fts", search, {
+      type: "websearch",
+      config: "english",
+    });
+  }
+  
+  const { data, error } = await query.order("updated_at", { ascending: false });
+    
+  if (error) throw error;
+  return (data || []).map(mapArtifact);
 }
 
 export function createId(): string {
-  return randomUUID();
+  return crypto.randomUUID();
 }
 
 export function getLocalStoreDir(): string {
-  return getStoreDir();
+  return ""; // Not used for Supabase
 }

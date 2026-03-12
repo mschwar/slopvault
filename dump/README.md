@@ -94,4 +94,4 @@ For important samples, create a `MANIFEST-{filename}.md` sidecar:
 
 - [INGESTION_CORPUS.md](/INGESTION_CORPUS.md) — Overall corpus documentation
 - [SCHEMA.md](/SCHEMA.md) — Data model for parsed artifacts
-- [AGENTS.md](/AGENTS.md) — Agent operating rules (corpus hygiene rules live here too)
+- [AGENTS.md](/AGENTS.md#corpus-steward) — Agent operating rules (corpus rules)

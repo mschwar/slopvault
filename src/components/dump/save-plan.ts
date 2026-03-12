@@ -16,7 +16,7 @@ export type DumpSaveAction =
     };
 
 export function kindForTextPreview(
-  preview: IngestPreviewResponse | null
+  preview: IngestPreviewResponse | null,
 ): IngestionKind {
   const item = preview?.items[0];
   const mode = item?.classification.mode;
@@ -34,7 +34,7 @@ export function kindForTextPreview(
 
 export function extractAudioLinksFromPreview(
   textInput: string,
-  preview: IngestPreviewResponse | null
+  preview: IngestPreviewResponse | null,
 ): string[] {
   const item = preview?.items[0];
   if (!item || item.classification.mode !== "audio_link") {

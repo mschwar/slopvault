@@ -7,12 +7,11 @@ import {
   buildIngestPreview
 } from "@/lib/ingest";
 import {
+  analyzeIngestion,
   commitIngestion,
   createIngestionDraft,
-  analyzeIngestion,
   uploadIngestionSource,
 } from "@/lib/ingestions/client-api";
-import { buildDumpSavePlan } from "@/components/dump/save-plan";
 import type {
   IngestPreviewResponse,
   IngestSaveResponse
@@ -20,6 +19,7 @@ import type {
 import { MAX_BATCH_ARTIFACTS } from "@/lib/ingest-contract";
 import { PreviewList } from "@/components/dump/PreviewList";
 import { ProviderGuidePanel } from "@/components/dump/ProviderGuidePanel";
+import { buildDumpSavePlan } from "@/components/dump/save-plan";
 
 export function DumpWorkspace() {
   const [textInput, setTextInput] = useState("");
@@ -118,8 +118,8 @@ export function DumpWorkspace() {
           commits.push(
             await commitArtifactBatchIngestion(
               action.includeFiles ? files : [],
-              action.audioLinks
-            )
+              action.audioLinks,
+            ),
           );
         }
       }
@@ -145,7 +145,7 @@ export function DumpWorkspace() {
       setError(
         caughtError instanceof Error
           ? caughtError.message
-          : "Save failed. Try again."
+          : "Save failed. Try again.",
       );
       setIsSaving(false);
     }
@@ -294,9 +294,9 @@ export function DumpWorkspace() {
           <section className="card">
             <h2 className="card__title">What this scaffold saves</h2>
             <p className="card__copy">
-              The current `/dump` implementation commits ingestions through the local
-              API ingestion pipeline (`/api/ingestions`) so the end-to-end behavior can
-              be tested before durable persistence is wired up.
+              The current `/dump` implementation commits ingestions via the local
+              ingestion API (`/api/ingestions`). The vault reads from the same local
+              store until Supabase persistence lands.
             </p>
             <div className="preview-meta">
               <span className="meta-chip">local ingestion API</span>

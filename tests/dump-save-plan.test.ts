@@ -1,26 +1,29 @@
 import { describe, expect, test } from "vitest";
 import { buildDumpSavePlan } from "@/components/dump/save-plan";
-import type { IngestPreviewResponse } from "@/lib/ingest-contract";
+import type { IngestPreviewResponse, IngestMode } from "@/lib/ingest-contract";
 
-function previewWithMode(mode: string): IngestPreviewResponse {
+function previewWithMode(mode: IngestMode): IngestPreviewResponse {
   return {
+    receivedAt: new Date().toISOString(),
+    itemCount: 1,
     items: [
       {
         id: "item-1",
-        position: 0,
-        artifactType: "text",
-        contentRole: "artifact",
         title: "Preview",
-        rawText: "",
-        parsedMarkdown: "",
-        tags: [],
-        defaultInclude: true,
+        artifactType: "text",
+        presentation: "artifact_only",
+        summary: "summary",
+        metadata: {
+          parserVersion: "0.1.0",
+          visibility: "private",
+        },
+        warnings: [],
         classification: {
           mode,
           confidence: "high",
-          provider: null,
-          surface: null,
-          notes: [],
+          artifactType: "text",
+          reasons: [],
+          signals: [],
         },
       },
     ],
@@ -59,5 +62,20 @@ describe("buildDumpSavePlan (/dump save logic)", () => {
       audioLinks: [],
     });
   });
-});
 
+  test("batches conversation items correctly", () => {
+    const actions = buildDumpSavePlan({
+      textInput: "User: hi\nAssistant: hello",
+      filesCount: 0,
+      preview: previewWithMode("conversation_paste"),
+    });
+
+    expect(actions).toEqual([
+      {
+        type: "text",
+        kind: "conversation_paste",
+        rawText: "User: hi\nAssistant: hello",
+      }
+    ]);
+  });
+});

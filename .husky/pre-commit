@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+# Get the current branch name
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+# Prevent committing directly to main
+if [ "$branch" = "main" ]; then
+  echo "🚨 ERROR: Direct commits to the 'main' branch are forbidden."
+  echo "Please create a feature branch, commit your changes there, and open a Pull Request."
+  echo "Example: git checkout -b feature/my-new-feature"
+  exit 1
+fi

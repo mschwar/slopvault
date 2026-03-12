@@ -1,24 +1,23 @@
 # ROADMAP.md — SlopVault Phased Execution Plan
 
-## Phase 0: Clarify and Stabilize Concept (Week 0-1)
+## Phase 0: Clarify and Stabilize (COMPLETE → Gate 1 Done)
 
-**Goal:** Turn the concept workspace into a buildable project with a parser and provenance contract strong enough to support the private vault.
+**Status:** Gate 1 complete. The canonical ingestion path is wired: `/dump` → `/api/ingestions` → `/vault`.
 
-- Finalize tech stack decisions (this phase is largely complete with the scaffolding docs).
-- Resolve open questions: auth strategy, deployment target.
-- Initialize the Next.js project with Supabase client configured.
-- Set up Tailwind with the dark-mode-only theme (utilitarian, brutalist, high info-density).
-- Create the Supabase project and apply initial schema migrations (including Storage bucket for images).
-- Build and test the parser against real raw pastes from ChatGPT and Claude.
-- Define the provenance metadata contract for MVP artifacts: source model, source surface, timestamps, prompt-family evidence, and other best-effort signals.
-- Collect the founder's Substrate project files as canonical test data.
+**What exists:**
+- Next.js 14+ app with App Router in `src/`
+- Styling is currently plain CSS (`src/app/globals.css`), not Tailwind (Tailwind remains a target-state option)
+- Local ingestion service (`src/lib/ingestions/service.ts`) using JSON file store
+- `/dump` route: The Dumpster ingestion UI (paste + drop files, preview, commit)
+- `/vault` route: reads committed artifacts from local store
+- `/api/ingestions/*` endpoints: create → analyze → commit flow
+- Parser tested against provider fixtures plus substrate corpus smoke samples in `dump/` (see `tests/substrate.test.ts`)
+- Provenance is partial: provider/surface + prompt fingerprints exist; timestamps/model attribution are still incomplete
+- 20 unit tests passing
 
-**Exit criteria:**
-- `npm run dev` starts a working Next.js app with Supabase connected.
-- The parser function accepts raw ChatGPT paste and returns clean Markdown plus metadata.
-- Provenance metadata fields are documented and emitted when detectable.
-- At least 5 real raw-paste test cases exist and pass (from the Substrate project sessions).
-- Dark mode base theme is applied globally.
+**Naming note:** `/dump` (UI route) vs `dump/` (repo corpus directory) — be aware of this collision.
+
+**Exit criteria:** ✅ Canonical ingest loop and local store wiring are met (Gate 1). Supabase connection and the full provenance contract are deferred (Gate 2+).
 
 ---
 

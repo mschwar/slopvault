@@ -5,7 +5,7 @@
 This repo is a working Next.js prototype for the ingestion MVP. It contains:
 
 1. **Concept documents** (the `01_*`, `02_*`, `03_*` files) — the founder's original thinking. Preserve these as-is.
-2. **Operating docs** (this file, plus `README.md`, `AGENTS.md`, `PRD.md`, `ARCHITECTURE.md`, `ROADMAP.md`, `BACKLOG.md`, `SCHEMA.md`, `CURRENT_STATE.md`) — the structured handoff. Prefer these over stale assumptions.
+2. **Operating docs** (this file, plus `README.md`, `AGENTS.md`, `PRD.md`, `ARCHITECTURE.md`, `ROADMAP.md`, `BACKLOG.md`, `SCHEMA.md`, `CURRENT_STATE.md`, `GATE_CLOSEOUT.md`) — the structured handoff. Prefer these over stale assumptions.
 3. **Scratchpad notes** (`scratchpad/`) — exploratory thinking and sketches. Useful for product discovery, but not the source of truth.
 4. **Application source** (`src/`) — Next.js app routes/components plus a local ingestion service (`/api/ingestions/*`).
 5. **Ingestion test corpus** (`dump/`) — an active holding area used to build and test the ingestion pipeline. This is raw material, not app code. It may contain sensitive exports; treat it accordingly.
@@ -48,6 +48,7 @@ After any implementation work, check:
 5. **Does it look right in dark mode?** Open the browser. If anything renders with a white background or light-mode defaults, fix it immediately.
 6. **Does auth work?** Can you sign up, sign in, and see only your own data?
 7. **Does the schema match `SCHEMA.md`?** If you changed the database, update `SCHEMA.md` to match.
+8. **Is the phase/gate complete?** If you have completed a phase defined in `ROADMAP.md`, you MUST run the closeout sequence defined in `GATE_CLOSEOUT.md` (validate, reflect, report, await disposition) before pushing code.
 
 ## Adding Structure Without Drifting
 

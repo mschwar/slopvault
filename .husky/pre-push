@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# Get the current branch name
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+# Prevent pushing directly to main
+if [ "$branch" = "main" ]; then
+  echo "🚨 ERROR: Direct pushes to the 'main' branch are forbidden."
+  echo "All changes must go through a Pull Request."
+  exit 1
+fi

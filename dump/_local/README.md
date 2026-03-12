@@ -1,16 +1,35 @@
-# dump/_local
+# Local Dump Directory
 
-This directory is for **personal scratch space** while you evaluate new samples or export methods.
+This directory is for **personal, work-in-progress, or temporary** corpus files during local development.
 
-Git behavior:
+## Purpose
 
-- Contents are ignored by `.gitignore` (`dump/_local/*`).
-- This README remains tracked so the directory purpose is visible.
+- Scratch space for copy-paste experiments
+- Temporary holding area for new provider samples being evaluated
+- Personal notes and working files not ready for sharing
 
-Workflow:
+## Usage
 
-1. Drop new WIP samples here.
-2. Once validated, move them into the right provider bucket (`dump/*-dump/`).
-3. Add a `MANIFEST-{filename}.md` sidecar for any sample that matters.
-4. Delete the scratch file from `_local/`.
+```
+New provider sample arrives
+    ↓
+dump/_local/gemini-experiment-1.txt
+    ↓
+Evaluate, clean, validate
+    ↓
+Move to dump/google-dump/ with `MANIFEST-{filename}.md`
+    ↓
+Delete from _local/
+```
 
+## Conventions
+
+- Use descriptive filenames: `<provider>-<experiment>-<date>.<ext>`
+- Clean up regularly — don't let this become a junk drawer
+- Move validated samples to their proper provider bucket
+- Add a note in the sample if it represents a new export method
+
+## Git Status
+
+This directory's contents are ignored by `.gitignore` (`dump/_local/*`), except this README.
+Files here are strictly local-only.

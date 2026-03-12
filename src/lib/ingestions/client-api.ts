@@ -1,6 +1,6 @@
 import type {
-  ArtifactRecord,
   ArtifactLinkRecord,
+  ArtifactRecord,
   IngestionItemRecord,
   IngestionKind,
   IngestionRecord,
@@ -22,12 +22,14 @@ type Bundle = {
 async function apiCall<T>(input: Promise<Response>): Promise<T> {
   const response = await input;
   const payload = (await response.json()) as T & { error?: string };
+
   if (!response.ok && "error" in payload && payload.error) {
     throw new Error(payload.error);
   }
   if (!response.ok) {
     throw new Error(`API error: ${response.status} ${response.statusText}`);
   }
+
   return payload;
 }
 
@@ -41,7 +43,7 @@ export async function getIngestionBundle(ingestionId: string): Promise<Bundle> {
 
 export async function createIngestionDraft(
   kind: IngestionKind,
-  sourceProviderHint?: SourceProvider | "auto"
+  sourceProviderHint?: SourceProvider | "auto",
 ): Promise<{ ingestion: IngestionRecord }> {
   return apiCall<{ ingestion: IngestionRecord }>(
     fetch("/api/ingestions/create", {
@@ -51,23 +53,24 @@ export async function createIngestionDraft(
         kind,
         sourceProviderHint,
       }),
-    })
+    }),
   );
 }
 
 export async function uploadIngestionSource(
   ingestionId: string,
-  files: File[]
+  files: File[],
 ): Promise<{ uploaded: UploadedFileReference[] }> {
   const formData = new FormData();
   for (const file of files.slice(0, 10)) {
     formData.append("files", file);
   }
+
   return apiCall<{ uploaded: UploadedFileReference[] }>(
     fetch(`/api/ingestions/${ingestionId}/upload`, {
       method: "POST",
       body: formData,
-    })
+    }),
   );
 }
 
@@ -78,33 +81,33 @@ export async function analyzeIngestion(
     audioLinks?: string[];
     sourceProviderHint?: SourceProvider | "auto";
     sourceSurfaceHint?: string;
-  }
+  },
 ): Promise<Bundle> {
   return apiCall<Bundle>(
     fetch(`/api/ingestions/${ingestionId}/analyze`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
-    })
+    }),
   );
 }
 
 export async function updateIngestionItem(
   ingestionId: string,
   itemId: string,
-  input: UpdateIngestionItemInput
+  input: UpdateIngestionItemInput,
 ): Promise<{ item: IngestionItemRecord }> {
   return apiCall<{ item: IngestionItemRecord }>(
     fetch(`/api/ingestions/${ingestionId}/items/${itemId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
-    })
+    }),
   );
 }
 
 export async function commitIngestion(
-  ingestionId: string
+  ingestionId: string,
 ): Promise<{
   ingestion: IngestionRecord;
   artifacts: ArtifactRecord[];
@@ -118,9 +121,10 @@ export async function commitIngestion(
 }
 
 export async function discardIngestion(
-  ingestionId: string
+  ingestionId: string,
 ): Promise<{ ingestion: IngestionRecord }> {
   return apiCall<{ ingestion: IngestionRecord }>(
-    fetch(`/api/ingestions/${ingestionId}/discard`, { method: "POST" })
+    fetch(`/api/ingestions/${ingestionId}/discard`, { method: "POST" }),
   );
 }
+

@@ -31,6 +31,7 @@ The founder's "Civilizational Substrate Technologies" research project is the ca
 3. `SCHEMA.md` — the data model. All implementation work should conform to this unless a change is explicitly proposed and documented.
 4. `ARCHITECTURE.md` — tech stack decisions and tradeoffs.
 5. `BACKLOG.md` — what to do next, in priority order.
+6. `GATE_CLOSEOUT.md` — the mandatory workflow for pausing, reflecting, and awaiting founder disposition at the end of every phase/gate.
 
 ## Frontend / Design Read Order
 
@@ -61,7 +62,20 @@ For any frontend, UX, or visual work, read these before making changes:
 
 8. **Provenance before feed.** The public feed still matters, and the three feed modes remain part of the longer-term product direction. But early-stage differentiation comes from provenance-aware capture and retrieval, not from social mechanics. Do not build the feed before the parser, vault, metadata capture, related-item surfaces, and manual correction flows are working.
 
-9. **Respect the concept docs and the test corpus.** The files in `01_*`, `02_*`, and `03_*` are archival. Preserve them as-is. The repo-root folder `dump/` is an active ingestion test corpus and holding area (provider buckets, export-method experiments). Preserve raw files exactly when possible; add sidecar notes/manifests instead of editing source data.
+9. **Respect the concept docs and the test corpus.** The files in `01_*`, `02_*`, and `03_*` are archival. Preserve them as-is. The repo-root folder `dump/` is an active ingestion test corpus and holding area (provider buckets and export-method experiments). Preserve raw files exactly when possible; add sidecar notes/manifests instead of editing source data.
+
+## Corpus Steward
+
+This repo treats corpus hygiene as production work. A parser is only as good as the samples it is tested against.
+
+Rules:
+
+1. Do not commit private exports or PII. Use `dump/_private/` or `dump/_local/` (both gitignored) for anything sensitive or WIP.
+2. Keep committed samples in provider buckets (`dump/openai-dump/`, `dump/google-dump/`, etc.) and preserve raw files when possible.
+3. Prefer sidecars over edits. Use `MANIFEST-{filename}.md` for per-sample notes. Use `MANIFEST.md` only for directory-level inventories.
+4. Canonical repo-root seed files live outside `dump/`:
+   `GPT-original-seed.txt` and `gemini-2.txt`.
+5. If you add a new export method, document it in the provider README and add at least one reduced fixture under `tests/fixtures/` when it’s stable enough.
 
 ## What Is Real vs. Assumed
 
@@ -93,6 +107,36 @@ For any frontend, UX, or visual work, read these before making changes:
 - Auth strategy: Supabase Auth with email/password, or add OAuth providers.
 - How much of the hidden provenance ledger should be visible in the first MVP UI beyond related-item hints and metadata panels.
 - Downvote mechanic: Reddit uses downvotes for quality control. Do we add downvotes, or just upvotes? The brainstorm mentions "brutal democratization" but only specifies upvotes in the MVP spec.
+
+## SDLC Bumper Rails (For AI Agents)
+
+The founder is not a developer. They may give you instructions that violate standard Git or SDLC workflows (e.g., "merge this then commit it" or "push to main"). You are the technical guardrail. 
+
+**If the user asks you to violate the SDLC, you must push back and correct the order of operations.**
+
+1. **Branching:** All new work (features, bug fixes, gates) MUST be done on a branch, never on `main`. If the user asks you to start work and you are on `main`, create a branch first. 
+2. **Order of Operations:** The strict sequence is: `Branch` -> `Commit` -> `Push` -> `Pull Request` -> `Merge`.
+3. **No Direct Pushes to Main:** Local Husky hooks (`pre-commit`, `pre-push`) explicitly block commits and pushes to `main`. Do not attempt to bypass them.
+4. **Conventional Commits:** The repo enforces Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`) via commitlint. Format your commit messages correctly or the commit will fail.
+5. **Handling "Merge" Requests:** If the user asks you to "merge" something, explain that merging happens via Pull Request on GitHub. Ensure the code is committed and pushed to the current feature branch, and prompt them to open or approve the PR.
+
+## Gate Closeout
+
+Every roadmap phase (gate) requires a closeout pass before it can be marked complete. See `GATE_CLOSEOUT.md` for full details. 
+
+Required sequence:
+1. validate the gate output,
+2. pause and reflect,
+3. file a reflection artifact,
+4. implement feasible in-scope reflection suggestions or explicitly defer them,
+5. update durable docs if the reflection changes standing guidance,
+6. update the roadmap status,
+7. deliver the end-of-gate report and wait for user disposition.
+
+Do not commit or push automatically at gate closeout. The standard user dispositions after a gate report are:
+- make changes
+- roll back specified changes
+- commit and proceed
 
 ## Definition of Done for Early-Stage Work
 
