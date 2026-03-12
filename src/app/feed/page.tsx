@@ -20,13 +20,14 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
     ? sortMode
     : "new";
 
-  const { nodes, hasMore } = await getFeed(validSortMode as FeedSortMode, 20);
+  const { nodes, hasMore, nextOffset } = await getFeed(validSortMode as FeedSortMode, 20);
 
   return (
     <FeedClient
       initialNodes={nodes}
       initialHasMore={hasMore}
       initialSortMode={validSortMode as FeedSortMode}
+      initialNextOffset={nextOffset}
     />
   );
 }

@@ -8,6 +8,7 @@ interface FeedClientProps {
   initialNodes: FeedNode[];
   initialHasMore: boolean;
   initialSortMode: FeedSortMode;
+  initialNextOffset?: number;
 }
 
 const sortModeLabels: Record<FeedSortMode, string> = {
@@ -48,6 +49,11 @@ function FeedCard({
   const [isVoting, setIsVoting] = useState(false);
   const [localVote, setLocalVote] = useState(userVote);
   const [localUpvotes, setLocalUpvotes] = useState(node.upvotes);
+
+  // Keep local state in sync if the prop changes
+  useEffect(() => {
+    setLocalVote(userVote);
+  }, [userVote]);
 
   const handleVote = async () => {
     setIsVoting(true);
@@ -151,10 +157,12 @@ export function FeedClient({
   initialNodes,
   initialHasMore,
   initialSortMode,
+  initialNextOffset,
 }: FeedClientProps) {
   const [sortMode, setSortMode] = useState<FeedSortMode>(initialSortMode);
   const [nodes, setNodes] = useState<FeedNode[]>(initialNodes);
   const [hasMore, setHasMore] = useState(initialHasMore);
+  const [nextOffset, setNextOffset] = useState<number | undefined>(initialNextOffset);
   const [isLoading, setIsLoading] = useState(false);
   const [userVotes, setUserVotes] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
@@ -181,7 +189,7 @@ export function FeedClient({
 
   // Fetch feed when sort mode changes
   const fetchFeed = useCallback(
-    async (mode: FeedSortMode, cursor?: string) => {
+    async (mode: FeedSortMode, cursor?: string, offset?: number) => {
       setIsLoading(true);
       setError(null);
       try {
@@ -189,19 +197,26 @@ export function FeedClient({
           sort: mode,
           limit: "20",
         });
-        if (cursor) params.set("cursor", cursor);
+        if (cursor && mode === "new") params.set("cursor", cursor);
+        if (offset && mode !== "new") params.set("offset", offset.toString());
 
         const res = await fetch(`/api/feed?${params}`);
         if (!res.ok) throw new Error("Failed to fetch feed");
 
         const data = await res.json();
 
-        if (cursor) {
-          setNodes((prev) => [...prev, ...data.nodes]);
+        if (cursor || offset) {
+          setNodes((prev) => {
+            // Filter out nodes that might already be in the list
+            const existingIds = new Set(prev.map(n => n.id));
+            const newNodes = data.nodes.filter((n: FeedNode) => !existingIds.has(n.id));
+            return [...prev, ...newNodes];
+          });
         } else {
           setNodes(data.nodes);
         }
         setHasMore(data.hasMore);
+        setNextOffset(data.nextOffset);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load feed");
       } finally {
@@ -223,7 +238,7 @@ export function FeedClient({
   const loadMore = () => {
     if (nodes.length > 0) {
       const lastNode = nodes[nodes.length - 1];
-      fetchFeed(sortMode, lastNode.createdAt);
+      fetchFeed(sortMode, lastNode.createdAt, nextOffset);
     }
   };
 

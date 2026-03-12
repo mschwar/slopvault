@@ -30,6 +30,7 @@ export interface FeedResult {
   nodes: FeedNode[];
   hasMore: boolean;
   nextCursor?: string;
+  nextOffset?: number;
 }
 
 /**
@@ -43,8 +44,14 @@ export interface FeedResult {
 export async function getFeed(
   sortMode: FeedSortMode = "new",
   limit: number = 20,
-  cursor?: string
-): Promise<FeedResult> {
+  cursor?: string,
+  offset: number = 0
+): Promise<{
+  nodes: FeedNode[];
+  hasMore: boolean;
+  nextCursor?: string;
+  nextOffset?: number;
+}> {
   let query = getPublicClient()
     .from("nodes")
     .select(`
@@ -62,14 +69,18 @@ export async function getFeed(
     .eq("visibility", "public");
 
   // Apply cursor-based pagination
-  if (cursor) {
+  if (cursor && sortMode === "new") {
     const cursorDate = new Date(cursor);
-    if (sortMode === "new") {
-      query = query.lt("created_at", cursorDate.toISOString());
-    } else {
-      // For hot and rabbit_holes, we use offset-based pagination
-      // since the ordering is more complex
-    }
+    query = query.lt("created_at", cursorDate.toISOString());
+  }
+
+  // Apply offset-based pagination for complex sorts
+  if (offset > 0 && sortMode !== "new") {
+    // Range is inclusive, so offset to offset + limit
+    query = query.range(offset, offset + limit);
+  } else {
+    // If offset is 0 or it's 'new', just limit
+    query = query.limit(limit + 1); // +1 to check for hasMore
   }
 
   // Apply sorting based on mode
@@ -87,9 +98,6 @@ export async function getFeed(
     query = query.order("parent_node_id", { ascending: false, nullsFirst: false });
     query = query.order("upvotes", { ascending: false });
   }
-
-  // Apply limit (fetch one extra to determine if there's more)
-  query = query.limit(limit + 1);
 
   const { data, error } = await query;
 
@@ -124,14 +132,19 @@ export async function getFeed(
     };
   });
 
-  const nextCursor = hasMore && nodes.length > 0
+  const nextCursor = hasMore && sortMode === "new" && nodes.length > 0
     ? nodes[nodes.length - 1].createdAt
+    : undefined;
+    
+  const nextOffset = hasMore && sortMode !== "new" 
+    ? offset + limit 
     : undefined;
 
   return {
     nodes,
     hasMore,
     nextCursor,
+    nextOffset,
   };
 }
 
