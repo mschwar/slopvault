@@ -27,3 +27,21 @@ Gate 2 - Bundling and Optional Sharing (2026-03-11)
 - Created public shareable routes for Nodes (/p/nodes/[id]) accessible without authentication.
 - Updated navigation to dynamically list user's Nodes.
 - Verified Node service with unit tests and mocked Supabase client.
+
+Gate 3 - Public Feed and Discovery (2026-03-12)
+
+- Added database trigger `on_vote_change` to sync `nodes.upvotes` count when votes are inserted/deleted.
+- Created `votes` table with RLS policies for secure voting.
+- Built public feed API (`/api/feed`) supporting three sort modes:
+  - "New/Raw" — chronological firehose
+  - "Hot Slop" — upvotes weighted by recency (Hacker News style)
+  - "Rabbit Holes" — sorted by fork depth (most remixed content)
+- Implemented upvote/unvote API endpoints (`/api/nodes/[id]/vote`).
+- Created feed page (`/feed`) with sort mode toggle and infinite scroll pagination.
+- Added upvote UI to feed cards with visual feedback (orange highlight when voted).
+- Built user profile pages (`/u/[pseudonym]`) showing public nodes and join date.
+- Updated navigation to include Feed link.
+- Fixed Supabase client initialization to support build-time rendering.
+- Added Suspense boundary to `/nodes/new` page to fix prerendering error.
+
+Next: Gate 4 - Forking and Public Lineage

@@ -8,7 +8,8 @@ import type { NodeRecord } from "@/lib/ingestions/types";
 
 const NAV_ITEMS = [
   { href: "/dump", label: "Dump", pill: "MVP" },
-  { href: "/vault", label: "Vault", pill: "Demo" }
+  { href: "/vault", label: "Vault", pill: "Demo" },
+  { href: "/feed", label: "Feed", pill: "New" }
 ] as const;
 
 export function AppNav() {
