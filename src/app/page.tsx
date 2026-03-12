@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <div className="page page--readable">
       <header className="page-header">
@@ -18,17 +22,30 @@ export default function HomePage() {
       <section className="card">
         <h2 className="card__title">What is working right now</h2>
         <p className="card__copy">
-          `/dump` now has a live client-side ingest scaffold: unified paste and upload,
-          heuristic input classification, provider export guides, preview generation,
-          and a local demo save path into `/vault`.
+          SlopVault is now backed by Supabase with full ingestion flows, 
+          auth-protected private vaults, and a heuristic parser that 
+          handles messy copy-paste from all major LLMs.
         </p>
         <div className="button-row hero-actions">
-          <Link className="button button--primary" href="/dump">
-            Open The Dumpster
-          </Link>
-          <Link className="button" href="/vault">
-            Open Vault
-          </Link>
+          {user ? (
+            <>
+              <Link className="button button--primary" href="/dump">
+                Open The Dumpster
+              </Link>
+              <Link className="button" href="/vault">
+                Open Vault
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link className="button button--primary" href="/auth/signin">
+                Sign In
+              </Link>
+              <Link className="button" href="/auth/signup">
+                Create Account
+              </Link>
+            </>
+          )}
         </div>
       </section>
     </div>

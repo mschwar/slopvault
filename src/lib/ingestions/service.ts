@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
-import os from "node:os";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { createClient } from "@/lib/supabase/server";
 import { extractItems, PARSE_VERSION } from "@/lib/ingestions/extract";
 import {
   createArtifactsAndLinks,
@@ -25,7 +25,12 @@ import type {
   UploadedFileReference,
 } from "@/lib/ingestions/types";
 
-const DEV_USER_ID = "00000000-0000-0000-0000-000000000001";
+async function getUserId(): Promise<string> {
+  const supabase = await createClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) throw new Error("Unauthorized");
+  return user.id;
+}
 
 function now(): string {
   return new Date().toISOString();
@@ -38,10 +43,11 @@ function getUploadsDir(): string {
 export async function createIngestionDraft(
   input: CreateDraftInput,
 ): Promise<IngestionRecord> {
+  const userId = await getUserId();
   const timestamp = now();
   const record: IngestionRecord = {
     id: createId(),
-    userId: DEV_USER_ID,
+    userId,
     kind: input.kind,
     status: "draft",
     sourceProvider:
