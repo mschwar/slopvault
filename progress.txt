@@ -44,4 +44,28 @@ Gate 3 - Public Feed and Discovery (2026-03-12)
 - Fixed Supabase client initialization to support build-time rendering.
 - Added Suspense boundary to `/nodes/new` page to fix prerendering error.
 
-Next: Gate 4 - Forking and Public Lineage
+Gate 4 - Forking and Public Lineage (2026-03-12)
+
+- Added database trigger `on_fork_change` to sync `nodes.fork_count` when nodes are forked.
+- Created `/api/nodes/[id]/fork` endpoint for authenticated forking of public nodes.
+- Implemented `forkNode` service function that copies node and artifacts with parent reference.
+- Added `ForkButton` component with loading and success states.
+- Built `LineageView` component showing parent, children, and sibling forks.
+- Built `LineageMini` component for compact lineage display in headers.
+- Updated public node page (`/p/nodes/[id]`) with fork button and full lineage section.
+- Enhanced Rabbit Holes feed to show both fork counts and remix indicators.
+- Added fork depth calculation in lineage queries.
+- Created `getNodeLineage`, `getForkTree`, and `findForkRoot` utility functions.
+
+MVP Complete!
+
+All four gates have been implemented:
+- Gate 1: Capture (The Dumpster) - paste, parse, save
+- Gate 2: Retrieve (The Vault/Nodes) - organize, bundle, manage
+- Gate 3: Share (Feed/Profiles) - publish, discover, vote
+- Gate 4: Lineage (Forking) - remix, trace provenance
+
+Next steps (Post-MVP):
+- Deploy to production
+- Test with real users
+- Iterate based on feedback

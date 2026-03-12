@@ -9,6 +9,7 @@ import {
   updateNodeRecord,
 } from "@/lib/nodes/store";
 import type {
+  ArtifactRecord,
   CreateNodeInput,
   NodeBundle,
   NodeRecord,
@@ -76,4 +77,73 @@ export async function deleteNode(nodeId: string): Promise<void> {
   if (node.userId !== userId) throw new Error("Unauthorized");
 
   await deleteNodeRecord(nodeId);
+}
+
+/**
+ * Duplicate artifacts for a forked node.
+ * Creates new artifact records owned by the forking user.
+ */
+async function duplicateArtifacts(
+  artifacts: ArtifactRecord[],
+  userId: string,
+): Promise<string[]> {
+  const supabase = await createClient();
+  const newArtifactIds: string[] = [];
+
+  for (const artifact of artifacts) {
+    const { data, error } = await supabase
+      .from("artifacts")
+      .insert({
+        user_id: userId,
+        title: artifact.title,
+        type: artifact.type,
+        raw_content: artifact.rawContent,
+        parsed_markdown: artifact.parsedMarkdown,
+        storage_path: artifact.storagePath,
+        audio_url: artifact.audioUrl,
+        description: artifact.description,
+        metadata: {
+          ...artifact.metadata,
+          forked_from: artifact.id,
+          forked_at: new Date().toISOString(),
+        },
+        tags: artifact.tags,
+        visibility: "private", // Forked artifacts start private
+      })
+      .select("id")
+      .single();
+
+    if (error) throw error;
+    newArtifactIds.push(data.id);
+  }
+
+  return newArtifactIds;
+}
+
+export async function forkNode(nodeId: string): Promise<NodeRecord> {
+  const userId = await getUserId();
+  
+  // Get the source node
+  const sourceNode = await getNodeRecord(nodeId);
+  if (!sourceNode) throw new Error("Node not found");
+  if (sourceNode.visibility !== "public") throw new Error("Cannot fork private nodes");
+  
+  // Get the source artifacts
+  const sourceArtifacts = await getNodeArtifacts(nodeId);
+  
+  // Duplicate the artifacts for the fork (don't just reference them)
+  // This ensures the fork owns its own copy and won't break if source is deleted
+  const forkedArtifactIds = await duplicateArtifacts(sourceArtifacts, userId);
+  
+  // Create the forked node
+  const forkedNode = await createNodeRecord({
+    userId,
+    title: `${sourceNode.title} (fork)`,
+    description: sourceNode.description ?? undefined,
+    hook: sourceNode.hook ?? undefined,
+    artifactIds: forkedArtifactIds,
+    parentNodeId: nodeId,
+  });
+  
+  return forkedNode;
 }

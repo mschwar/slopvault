@@ -21,6 +21,7 @@ export interface FeedNode {
   pseudonym: string;
   upvotes: number;
   forkCount: number;
+  parentNodeId: string | null;
   createdAt: string;
   mediaTypes: string[];
 }
@@ -53,6 +54,7 @@ export async function getFeed(
       hook,
       upvotes,
       fork_count,
+      parent_node_id,
       created_at,
       profiles!inner(pseudonym),
       node_artifacts(artifacts(type))
@@ -79,8 +81,10 @@ export async function getFeed(
     query = query.order("upvotes", { ascending: false });
     query = query.order("created_at", { ascending: false });
   } else if (sortMode === "rabbit_holes") {
-    // Rabbit holes: most forked content first
+    // Rabbit holes: prioritize nodes with forks AND nodes that are forks
+    // This surfaces both popular starting points and deep remix chains
     query = query.order("fork_count", { ascending: false });
+    query = query.order("parent_node_id", { ascending: false, nullsFirst: false });
     query = query.order("upvotes", { ascending: false });
   }
 
@@ -114,6 +118,7 @@ export async function getFeed(
       pseudonym: row.profiles?.pseudonym || "ghost",
       upvotes: row.upvotes || 0,
       forkCount: row.fork_count || 0,
+      parentNodeId: row.parent_node_id,
       createdAt: row.created_at,
       mediaTypes: Array.from(mediaTypesSet),
     };

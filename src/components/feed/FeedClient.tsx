@@ -130,10 +130,14 @@ function FeedCard({
             <span>•</span>
             <span>{new Date(node.createdAt).toLocaleDateString()}</span>
             <MediaTypeIcon types={node.mediaTypes} />
-            {node.forkCount > 0 && (
+            {(node.forkCount > 0 || node.parentNodeId) && (
               <>
                 <span>•</span>
-                <span className="text-purple-400">{node.forkCount} forks</span>
+                <span className="text-purple-400">
+                  {node.forkCount > 0 ? `${node.forkCount} fork${node.forkCount === 1 ? "" : "s"}` : ""}
+                  {node.forkCount > 0 && node.parentNodeId ? " + " : ""}
+                  {node.parentNodeId ? "remix" : ""}
+                </span>
               </>
             )}
           </div>

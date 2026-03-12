@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { NodeBundle } from "@/lib/ingestions/types";
+import { getNodeLineage, type NodeLineage } from "./lineage";
 
 function getPublicClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -12,12 +13,20 @@ function getPublicClient() {
   return createClient(supabaseUrl, supabaseAnonKey);
 }
 
-export async function getPublicNodeBundle(nodeId: string): Promise<NodeBundle> {
+export interface PublicNodeBundle extends NodeBundle {
+  lineage: NodeLineage;
+  authorPseudonym: string;
+}
+
+export async function getPublicNodeBundle(nodeId: string): Promise<PublicNodeBundle> {
   const supabase = getPublicClient();
   
   const { data: nodeData, error: nodeError } = await supabase
     .from("nodes")
-    .select("*")
+    .select(`
+      *,
+      profiles!inner(pseudonym)
+    `)
     .eq("id", nodeId)
     .eq("visibility", "public")
     .single();
@@ -50,6 +59,9 @@ export async function getPublicNodeBundle(nodeId: string): Promise<NodeBundle> {
     updatedAt: row.artifacts.updated_at,
   }));
 
+  // Get lineage information
+  const lineage = await getNodeLineage(nodeId);
+
   return {
     node: {
       id: nodeData.id,
@@ -65,5 +77,7 @@ export async function getPublicNodeBundle(nodeId: string): Promise<NodeBundle> {
       updatedAt: nodeData.updated_at,
     },
     artifacts,
+    lineage,
+    authorPseudonym: nodeData.profiles?.pseudonym || "ghost",
   };
 }
