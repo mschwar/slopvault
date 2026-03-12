@@ -2,7 +2,13 @@
 
 ## Current State
 
-No application code exists. The repo contains concept documents, raw brainstorm sessions, and implementation scaffolding docs. The current architectural direction is an artifact-first private vault with a hidden provenance ledger that will later support richer trace reconstruction.
+A working Next.js prototype exists with local ingestion service and file-based storage. The app runs at `/dump` (The Dumpster UI) and `/vault` (artifact browser), backed by `/api/ingestions/*` endpoints. Data is stored in a local JSON file (`$TMPDIR/slopvault-local-store/store.json` by default) — not Supabase yet.
+
+**Naming collision to be aware of:**
+- `/dump` (route) = The Dumpster ingestion UI in the Next.js app
+- `dump/` (directory) = test corpus folder in repo root containing raw LLM exports
+
+The current architecture is a local-first artifact vault with a hidden provenance ledger. Supabase integration is planned but not yet implemented.
 
 ## Proposed Target Architecture
 
