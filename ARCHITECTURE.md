@@ -116,6 +116,8 @@ For the first MVP:
 
 ### Data Flow — Core Loop
 
+**Core Principle:** Never replace an original source with a converted derivative. The ingestion pipeline must preserve immutable originals (raw pastes, raw file uploads) while generating replaceable derivatives (parsed markdown). This maps to the database as `raw_content` / `raw_text` (immutable) vs `parsed_markdown` (replaceable).
+
 **Unified ingestion hub (primary):**
 
 1. User opens one intake surface: "The Dumpster".
