@@ -44,3 +44,13 @@ next-env.d.ts
 
 # Testing
 coverage/
+
+# Local ingestion corpora / scratch
+# These commonly contain full-fidelity user exports and should never be committed.
+ingestion-corpus/
+archive/
+dump/_local/
+dump/_private/
+
+# Local-only ignore helper (ripgrep / editor workflows)
+.ignore

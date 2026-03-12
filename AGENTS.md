@@ -61,7 +61,7 @@ For any frontend, UX, or visual work, read these before making changes:
 
 8. **Provenance before feed.** The public feed still matters, and the three feed modes remain part of the longer-term product direction. But early-stage differentiation comes from provenance-aware capture and retrieval, not from social mechanics. Do not build the feed before the parser, vault, metadata capture, related-item surfaces, and manual correction flows are working.
 
-9. **Respect the existing concept docs.** The files in `01_*`, `02_*`, `03_*` and `dump/` are archival. Do not modify them. They represent the founder's original thinking and should be preserved as-is.
+9. **Respect the concept docs and the test corpus.** The files in `01_*`, `02_*`, and `03_*` are archival. Preserve them as-is. The repo-root folder `dump/` is an active ingestion test corpus and holding area (provider buckets, export-method experiments). Preserve raw files exactly when possible; add sidecar notes/manifests instead of editing source data.
 
 ## What Is Real vs. Assumed
 

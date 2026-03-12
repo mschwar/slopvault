@@ -1,6 +1,6 @@
 # SlopVault
 
-**Status: Greenfield / Pre-implementation**
+**Status: Working prototype (ingestion MVP)**
 
 SlopVault is a platform for AI creators to capture, parse, organize, retrieve, and optionally share their AI-generated work with strong provenance. It addresses a specific pain point: generative AI makes creation cheap and infinite, but the prompts, outputs, uploads, and iterations that produced the work get scattered across siloed tools with no unified home.
 
@@ -8,14 +8,40 @@ SlopVault combines the private archiving of Obsidian, the gritty accessibility o
 
 ## What This Repo Contains Today
 
-This repo is a concept workspace, not a running application. It contains:
+This repo contains a working Next.js app prototype plus concept/docs/corpus materials:
 
 - **Concept notes** (`01_THE_NORTH_STAR.md`, `02_THE_BUSINESS_MEMO.md`, `03_THE_PRD_AND_SCHEMA.md`) — the distilled product vision, business case, and initial schema thinking.
-- **Raw brainstorm dumps** (`dump/`, `GPT-original-seed.txt`, `gemini-2.txt`) — the original multi-platform research sessions that both inspired and demonstrated the problem SlopVault solves.
-- **Project scaffolding docs** — `PRD.md`, `ARCHITECTURE.md`, `ROADMAP.md`, `BACKLOG.md`, `AGENTS.md`, `RUNBOOK.md`, `SCHEMA.md` — structured handoff documents for implementation.
+- **Ingestion test corpus** (`dump/`) — an active holding area used to build and test the ingestion pipeline (provider buckets, export-method experiments). This is raw material, not app code.
+- **Raw brainstorm dumps** (`GPT-original-seed.txt`, `gemini-2.txt`, plus some content under `dump/`) — the original multi-platform research sessions that inspired the product.
+- **Operating docs** — `AGENTS.md`, `PRD.md`, `ARCHITECTURE.md`, `ROADMAP.md`, `BACKLOG.md`, `RUNBOOK.md`, `SCHEMA.md`, `CURRENT_STATE.md`.
 - **Scratchpad notes** (`scratchpad/`) — exploratory working notes and sketches. Useful for thinking, but not the source of truth.
 
-There is no application code yet. That is intentional.
+## Quickstart
+
+```bash
+npm install
+npm test
+npm run dev
+```
+
+Production build:
+
+```bash
+npm run build
+```
+
+## App Entry Points
+
+- Route `/dump`: “The Dumpster” ingestion UI (paste + drop files, preview, commit).
+- Route `/vault`: reads committed artifacts from the same local ingestion store as the API.
+- API `/api/ingestions/*`: local ingestion service (draft -> analyze -> commit).
+
+Local store:
+
+- Default: `$TMPDIR/slopvault-local-store/store.json` (macOS) via `os.tmpdir()`.
+- Override with `SLOPVAULT_STORE_DIR=/some/path`.
+
+To reset local state, delete the store directory.
 
 ## Repo Structure
 
@@ -28,6 +54,7 @@ slopvault/
 ├── ROADMAP.md                 # Phased execution plan
 ├── BACKLOG.md                 # Prioritized task list
 ├── RUNBOOK.md                 # How to orient and work in this repo
+├── CURRENT_STATE.md            # What is confirmed working vs broken right now
 ├── SCHEMA.md                  # Data model and API surface
 ├── .gitignore
 ├── .gitattributes
@@ -36,18 +63,12 @@ slopvault/
 ├── 02_THE_BUSINESS_MEMO.md    # Business case / pitch framing
 ├── 03_THE_PRD_AND_SCHEMA.md   # Initial PRD and schema sketch
 │
-├── dump/                      # Raw brainstorm sessions (archival)
-│   ├── GPT-firstpass.md
-│   ├── gemini-raw-seed.md
-│   └── Grok-firstpass.md
+├── dump/                      # Active ingestion test corpus + holding area (raw, may be messy)
 ├── GPT-original-seed.txt      # Original ChatGPT research session
 ├── gemini-2.txt               # Gemini research / framework session
 ├── scratchpad/                # Exploratory notes and layout sketches
 │
-├── src/                       # Application source (empty, awaiting Phase 0)
-│   ├── app/                   # Next.js app directory (placeholder)
-│   ├── lib/                   # Shared utilities, parsers, DB clients
-│   └── components/            # React components
+├── src/                       # Application source (Next.js App Router + ingestion service)
 │
 └── supabase/
     └── migrations/            # SQL migration files (placeholder)
@@ -57,8 +78,8 @@ slopvault/
 
 1. Read `AGENTS.md` for operating rules.
 2. Read `PRD.md` and `ARCHITECTURE.md` to understand the artifact-first MVP and the hidden provenance-ledger direction.
-3. Check `BACKLOG.md` for the current implementation order.
+3. Read `CURRENT_STATE.md` to see what is confirmed working right now.
 4. Follow `ROADMAP.md` for phased milestones.
 5. Use `RUNBOOK.md` for day-to-day orientation.
 
-The immediate next steps are **P0-1** (initialize the Next.js app), **P0-3** (build the parser/import pipeline for raw paste and provider export inputs), **P0-4** (write parser tests from the founder's real source material), and **P0-5** (normalize provenance signals so later trace reconstruction has a solid spine). See `BACKLOG.md` for specifics.
+The immediate next steps are the current **P0** stabilization items in `BACKLOG.md` (keep the canonical ingest path stable, reduce data-loss edge cases, and get the test corpus organization under control). See `BACKLOG.md` for specifics.
