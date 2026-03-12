@@ -27,7 +27,7 @@ export default function HomePage() {
             Open The Dumpster
           </Link>
           <Link className="button" href="/vault">
-            Open Demo Vault
+            Open Vault
           </Link>
         </div>
       </section>

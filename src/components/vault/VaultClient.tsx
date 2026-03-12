@@ -2,68 +2,87 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import {
-  listDemoVaultArtifacts,
-  type DemoVaultArtifact
-} from "@/lib/demo-vault";
+import type { ArtifactRecord } from "@/lib/ingestions/types";
+
+async function getIngestionsSnapshot(): Promise<{ artifacts: ArtifactRecord[] }> {
+  const res = await fetch("/api/ingestions");
+  if (!res.ok) {
+    throw new Error("Failed to load vault contents.");
+  }
+  return res.json();
+}
 
 export function VaultClient() {
-  const [items, setItems] = useState<DemoVaultArtifact[]>([]);
+  const [items, setItems] = useState<ArtifactRecord[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setItems(listDemoVaultArtifacts());
+    let active = true;
+    getIngestionsSnapshot()
+      .then((snapshot) => {
+        if (!active) {
+          return;
+        }
+        setItems(snapshot.artifacts);
+        setError(null);
+      })
+      .catch((caughtError) => {
+        if (!active) {
+          return;
+        }
+        setError(caughtError instanceof Error ? caughtError.message : "Vault load failed.");
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
+
+  const emptyLabel = error
+    ? error
+    : "Nothing has been saved yet.";
 
   return (
     <div className="page">
       <header className="page-header">
-        <p className="page-header__eyebrow">Demo Vault</p>
-        <h1 className="page-header__title">Saved ingest previews live here for now.</h1>
+        <p className="page-header__eyebrow">Vault</p>
+        <h1 className="page-header__title">Committed artifacts live here.</h1>
         <p className="page-header__copy">
-          This is a local-browser stand-in for the real Stash. It exists so `/dump`
-          has a real preview-to-save loop while the backend is still empty.
+          This vault reads from the same local ingestion store used by `/api/ingestions`.
+          Use <Link href="/dump">Dump</Link> to ingest and commit more artifacts.
         </p>
       </header>
 
       {items.length === 0 ? (
         <div className="empty-state">
-          Nothing has been saved yet. <Link href="/dump">Open The Dumpster</Link> and
-          save a preview first.
+          {emptyLabel} <Link href="/dump">Open The Dumpster</Link> and save something.
         </div>
       ) : (
         <div className="vault-list">
           {items.map((item) => (
-            <article className="vault-item" key={item.savedId}>
+            <article className="vault-item" key={item.id}>
               <div className="preview-card__header">
                 <div>
-                  <h2 className="preview-card__title">{item.title}</h2>
-                  <p className="preview-card__summary">{item.summary}</p>
+                  <h2 className="preview-card__title">{item.title ?? "Untitled artifact"}</h2>
+                  <p className="preview-card__summary">
+                    {item.type === "text"
+                      ? (item.parsedMarkdown ?? item.rawContent ?? "").slice(0, 160) ||
+                        "Text artifact"
+                      : item.type === "image"
+                        ? "Image artifact"
+                        : "Audio link"}
+                  </p>
                 </div>
                 <span className="status-badge status-badge--private">private</span>
               </div>
 
-              {item.promptPreview ? (
-                <div className="preview-block">
-                  <p className="preview-block__label">Prompt</p>
-                  <p className="preview-block__value">{item.promptPreview}</p>
-                </div>
-              ) : null}
-
-              {item.contentPreview ? (
-                <div className="preview-block">
-                  <p className="preview-block__label">Preview</p>
-                  <p className="preview-block__value">{item.contentPreview}</p>
-                </div>
-              ) : null}
-
               <div className="vault-item__meta">
-                <span className="meta-chip">{item.classification.mode}</span>
-                <span className="meta-chip">{item.artifactType}</span>
-                {item.classification.provider ? (
-                  <span className="meta-chip">{item.classification.provider}</span>
-                ) : null}
+                <span className="meta-chip">{item.type}</span>
+                <span className="meta-chip">
+                  {String(item.metadata.content_role ?? "artifact")}
+                </span>
                 <span className="vault-item__timestamp">
-                  saved {new Date(item.savedAt).toLocaleString()}
+                  updated {new Date(item.updatedAt).toLocaleString()}
                 </span>
               </div>
             </article>
@@ -73,4 +92,3 @@ export function VaultClient() {
     </div>
   );
 }
-
