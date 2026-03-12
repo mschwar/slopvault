@@ -341,6 +341,7 @@ export async function getDashboardSnapshot(): Promise<{
   ingestions: IngestionRecord[];
   artifacts: ArtifactRecord[];
 }> {
+  await getUserId(); // Just to verify auth
   const [ingestions, artifacts] = await Promise.all([listIngestions(), listArtifacts()]);
   return { ingestions, artifacts };
 }

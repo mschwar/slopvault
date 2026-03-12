@@ -38,12 +38,18 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Protect private routes
-  const protectedPaths = ["/vault", "/dump", "/shared", "/seed", "/journey"];
+  const protectedPaths = ["/vault", "/dump", "/shared", "/seed", "/journey", "/api/ingestions"];
   const isProtected = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   );
 
   if (!user && isProtected) {
+    if (request.nextUrl.pathname.startsWith("/api/")) {
+      return new NextResponse(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
     const url = request.nextUrl.clone();
     url.pathname = "/auth/signin";
     return NextResponse.redirect(url);
