@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { ArtifactRecord } from "@/lib/ingestions/types";
 
@@ -14,22 +15,20 @@ async function getIngestionsSnapshot(): Promise<{ artifacts: ArtifactRecord[] }>
 
 export function VaultClient() {
   const [items, setItems] = useState<ArtifactRecord[]>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     let active = true;
     getIngestionsSnapshot()
       .then((snapshot) => {
-        if (!active) {
-          return;
-        }
+        if (!active) return;
         setItems(snapshot.artifacts);
         setError(null);
       })
       .catch((caughtError) => {
-        if (!active) {
-          return;
-        }
+        if (!active) return;
         setError(caughtError instanceof Error ? caughtError.message : "Vault load failed.");
       });
 
@@ -38,9 +37,24 @@ export function VaultClient() {
     };
   }, []);
 
-  const emptyLabel = error
-    ? error
-    : "Nothing has been saved yet.";
+  const toggleSelection = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleCreateNode = () => {
+    const ids = Array.from(selectedIds).join(",");
+    router.push(`/nodes/new?ids=${ids}`);
+  };
+
+  const emptyLabel = error ? error : "Nothing has been saved yet.";
 
   return (
     <div className="page">
@@ -48,8 +62,8 @@ export function VaultClient() {
         <p className="page-header__eyebrow">Vault</p>
         <h1 className="page-header__title">Committed artifacts live here.</h1>
         <p className="page-header__copy">
-          This vault reads from the same local ingestion store used by `/api/ingestions`.
-          Use <Link href="/dump">Dump</Link> to ingest and commit more artifacts.
+          Select multiple artifacts to bundle them into a shareable <strong>Node</strong>.
+          Use <Link href="/dump" style={{ textDecoration: "underline" }}>The Dumpster</Link> to ingest more.
         </p>
       </header>
 
@@ -59,34 +73,57 @@ export function VaultClient() {
         </div>
       ) : (
         <div className="vault-list">
-          {items.map((item) => (
-            <article className="vault-item" key={item.id}>
-              <div className="preview-card__header">
-                <div>
-                  <h2 className="preview-card__title">{item.title ?? "Untitled artifact"}</h2>
-                  <p className="preview-card__summary">
-                    {item.type === "text"
-                      ? (item.parsedMarkdown ?? item.rawContent ?? "").slice(0, 160) ||
-                        "Text artifact"
-                      : item.type === "image"
-                        ? "Image artifact"
-                        : "Audio link"}
-                  </p>
+          {items.map((item) => {
+            const isSelected = selectedIds.has(item.id);
+            return (
+              <article
+                className="vault-item"
+                key={item.id}
+                onClick={() => toggleSelection(item.id)}
+                data-selected={isSelected}
+              >
+                <div className="vault-item__checkbox" />
+                <div className="preview-card__header">
+                  <div>
+                    <h2 className="preview-card__title">{item.title ?? "Untitled artifact"}</h2>
+                    <p className="preview-card__summary">
+                      {item.type === "text"
+                        ? (item.parsedMarkdown ?? item.rawContent ?? "").slice(0, 160) ||
+                          "Text artifact"
+                        : item.type === "image"
+                          ? "Image artifact"
+                          : "Audio link"}
+                    </p>
+                  </div>
+                  <span className={`status-badge status-badge--${item.visibility}`}>
+                    {item.visibility}
+                  </span>
                 </div>
-                <span className="status-badge status-badge--private">private</span>
-              </div>
 
-              <div className="vault-item__meta">
-                <span className="meta-chip">{item.type}</span>
-                <span className="meta-chip">
-                  {String(item.metadata.content_role ?? "artifact")}
-                </span>
-                <span className="vault-item__timestamp">
-                  updated {new Date(item.updatedAt).toLocaleString()}
-                </span>
-              </div>
-            </article>
-          ))}
+                <div className="vault-item__meta">
+                  <span className="meta-chip">{item.type}</span>
+                  <span className="meta-chip">
+                    {String(item.metadata.content_role ?? "artifact")}
+                  </span>
+                  <span className="vault-item__timestamp">
+                    updated {new Date(item.updatedAt).toLocaleString()}
+                  </span>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      {selectedIds.size > 0 && (
+        <div className="action-bar">
+          <div className="action-bar__count">{selectedIds.size} selected</div>
+          <button className="button button--primary" onClick={handleCreateNode}>
+            Bundle into Node
+          </button>
+          <button className="button" onClick={() => setSelectedIds(new Set())}>
+            Clear
+          </button>
         </div>
       )}
     </div>

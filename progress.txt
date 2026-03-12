@@ -16,3 +16,14 @@
 - Added a `/vault` demo route so the preview-to-save loop is testable before Supabase wiring exists.
 - Verified the implementation with `npm test` and `npm run build`.
 - Current limitation: save persists to local browser storage only; it is a UX scaffold until artifact creation is wired to the backend.
+
+Gate 2 - Bundling and Optional Sharing (2026-03-11)
+
+- Implemented Node data model and service layer for artifact bundling.
+- Added multi-select capability to the Vault for packaging related artifacts.
+- Built Node creation flow with title, hook, and description metadata.
+- Implemented Node detail view with mixed-media rendering (text, images, audio links).
+- Added Private/Public visibility toggling for Nodes with corresponding RLS and API protection.
+- Created public shareable routes for Nodes (/p/nodes/[id]) accessible without authentication.
+- Updated navigation to dynamically list user's Nodes.
+- Verified Node service with unit tests and mocked Supabase client.

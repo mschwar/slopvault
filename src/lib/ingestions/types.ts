@@ -111,18 +111,45 @@ export interface ArtifactLinkRecord {
   createdAt: string;
 }
 
-export interface LocalDataStore {
-  ingestions: IngestionRecord[];
-  ingestionItems: IngestionItemRecord[];
-  artifacts: ArtifactRecord[];
-  artifactLinks: ArtifactLinkRecord[];
+export interface NodeRecord {
+  id: string;
+  userId: string;
+  title: string;
+  description: string | null;
+  hook: string | null;
+  parentNodeId: string | null;
+  visibility: "private" | "public";
+  upvotes: number;
+  forkCount: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface AnalyzeIngestionInput {
-  rawText?: string;
-  audioLinks?: string[];
-  sourceProviderHint?: SourceProvider | "auto";
-  sourceSurfaceHint?: string;
+export interface NodeArtifactRecord {
+  id: string;
+  nodeId: string;
+  artifactId: string;
+  position: number;
+}
+
+export interface NodeBundle {
+  node: NodeRecord;
+  artifacts: ArtifactRecord[];
+}
+
+export interface CreateNodeInput {
+  title: string;
+  description?: string;
+  hook?: string;
+  artifactIds: string[];
+}
+
+export interface UpdateNodeInput {
+  title?: string;
+  description?: string | null;
+  hook?: string | null;
+  visibility?: "private" | "public";
+  artifactIds?: string[]; // For reordering or batch update
 }
 
 export interface UploadedFileReference {
