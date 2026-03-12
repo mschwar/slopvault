@@ -5,7 +5,7 @@
 This is a greenfield project. No application code exists yet. The repo contains:
 
 1. **Concept documents** (the `01_*`, `02_*`, `03_*` files and `dump/` folder) — these are the founder's original thinking. Read them for context but do not modify them.
-2. **Project scaffolding docs** (this file, plus `README.md`, `AGENTS.md`, `PRD.md`, `ARCHITECTURE.md`, `ROADMAP.md`, `BACKLOG.md`, `SCHEMA.md`) — these are the structured handoff. They define what to build and how.
+2. **Project scaffolding docs** (this file, plus `README.md`, `AGENTS.md`, `PRD.md`, `ARCHITECTURE.md`, `ROADMAP.md`, `BACKLOG.md`, `SCHEMA.md`, `GATE_CLOSEOUT.md`) — these are the structured handoff. They define what to build and how.
 3. **Scratchpad notes** (`scratchpad/`) — exploratory thinking and sketches. Useful for product discovery, but not the source of truth.
 4. **Starter directories** (`src/app/`, `src/lib/`, `src/components/`) — empty placeholders for the Next.js application.
 
@@ -46,6 +46,7 @@ After any implementation work, check:
 5. **Does it look right in dark mode?** Open the browser. If anything renders with a white background or light-mode defaults, fix it immediately.
 6. **Does auth work?** Can you sign up, sign in, and see only your own data?
 7. **Does the schema match `SCHEMA.md`?** If you changed the database, update `SCHEMA.md` to match.
+8. **Is the phase/gate complete?** If you have completed a phase defined in `ROADMAP.md`, you MUST run the closeout sequence defined in `GATE_CLOSEOUT.md` (validate, reflect, report, await disposition) before pushing code.
 
 ## Adding Structure Without Drifting
 
