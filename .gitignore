@@ -49,8 +49,10 @@ coverage/
 # These commonly contain full-fidelity user exports and should never be committed.
 ingestion-corpus/
 archive/
-dump/_local/
-dump/_private/
+dump/_local/*
+!dump/_local/README.md
+dump/_private/*
+!dump/_private/README.md
 
 # Local-only ignore helper (ripgrep / editor workflows)
 .ignore

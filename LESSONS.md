@@ -27,16 +27,11 @@
 
 **Server-side alternative considered:** We could change `createIngestionDraft` to accept a hybrid kind or defer kind resolution to analysis time. This would require schema changes and unified extraction logic. Not worth the complexity for MVP.
 
-### Known Edge Case: Audio Links + Files = Data Loss Risk
+### Audio Links + Files
 
-**Current behavior:** If text is classified as `audio_link` AND files are present, the audio links are silently ignored because:
-- `audioLinks.length === 0` is false, so `commitTextIngestion()` is skipped
-- `commitArtifactBatchIngestion()` receives the files but NOT the audio links
+When the textarea is classified as an `audio_link` and files are present, the audio link is attached to the `artifact_batch` ingestion (so it is not dropped).
 
-**Fix applied:** The service layer (`analyzeIngestion` in `service.ts`) accepts both `files` and `audioLinks` for `artifact_batch` kinds. The bug is in `DumpWorkspace.handleSave()` — it should pass audio links to the batch ingestion when text is an audio link.
+Test coverage:
 
-**Test coverage added:**
-- `audio-link-only ingest creates audio_link artifacts without data loss`
-- `artifact batch with files and audio links extracts both without data loss`
-
-**UI copy:** The current copy doesn't explicitly explain that two ingestions are created. Consider adding: "Text and files will be saved as separate ingestions" to set user expectations.
+- Service-layer: `audio-link-only ingest creates audio_link artifacts without data loss`
+- UI save-planning: `buildDumpSavePlan forwards audio links to artifact_batch when files are present`

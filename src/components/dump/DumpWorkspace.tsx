@@ -12,6 +12,7 @@ import {
   analyzeIngestion,
   uploadIngestionSource,
 } from "@/lib/ingestions/client-api";
+import { buildDumpSavePlan } from "@/components/dump/save-plan";
 import type {
   IngestPreviewResponse,
   IngestSaveResponse
@@ -19,7 +20,6 @@ import type {
 import { MAX_BATCH_ARTIFACTS } from "@/lib/ingest-contract";
 import { PreviewList } from "@/components/dump/PreviewList";
 import { ProviderGuidePanel } from "@/components/dump/ProviderGuidePanel";
-import type { IngestionKind } from "@/lib/ingestions/types";
 
 export function DumpWorkspace() {
   const [textInput, setTextInput] = useState("");
@@ -73,33 +73,7 @@ export function DumpWorkspace() {
     }
   }
 
-  function kindForTextPreview(): IngestionKind {
-    const item = preview?.items[0];
-    const mode = item?.classification.mode;
-
-    if (mode === "standalone_prompt") {
-      return "prompt_only";
-    }
-
-    if (mode === "provider_export_json") {
-      return "source_json_upload";
-    }
-
-    return "conversation_paste";
-  }
-
-  function extractAudioLinks(): string[] {
-    const item = preview?.items[0];
-    if (!item || item.classification.mode !== "audio_link") {
-      return [];
-    }
-
-    const trimmed = textInput.trim();
-    return trimmed ? [trimmed] : [];
-  }
-
-  async function commitTextIngestion(rawText: string) {
-    const kind = kindForTextPreview();
+  async function commitTextIngestion(kind: Parameters<typeof createIngestionDraft>[0], rawText: string) {
     const { ingestion } = await createIngestionDraft(kind);
     const analyzed = await analyzeIngestion(ingestion.id, { rawText });
     if (analyzed.items.length === 0) {
@@ -130,29 +104,24 @@ export function DumpWorkspace() {
     setIsSaving(true);
 
     try {
-      const trimmed = textInput.trim();
-      const audioLinks = extractAudioLinks();
-
       const commits: Array<Awaited<ReturnType<typeof commitIngestion>>> = [];
+      const plan = buildDumpSavePlan({
+        textInput,
+        filesCount: files.length,
+        preview,
+      });
 
-      if (files.length > 0) {
-        // INTENTIONAL TWO-INGESTION MODEL: The service layer requires different
-        // ingestion kinds for text vs. files. We preserve all user input by
-        // creating separate ingestions rather than silently dropping data.
-        // See LESSONS.md "Two-Ingestion Model is Intentional (For Now)"
-        if (trimmed && audioLinks.length === 0) {
-          // Text is not an audio link — save it as its own ingestion.
-          commits.push(await commitTextIngestion(trimmed));
+      for (const action of plan) {
+        if (action.type === "text") {
+          commits.push(await commitTextIngestion(action.kind, action.rawText));
+        } else {
+          commits.push(
+            await commitArtifactBatchIngestion(
+              action.includeFiles ? files : [],
+              action.audioLinks
+            )
+          );
         }
-        // BUG: If text IS an audio link (audioLinks.length > 0) and files exist,
-        // the audio links are silently ignored here. The fix is to pass audioLinks
-        // to commitArtifactBatchIngestion (which already supports them server-side).
-
-        commits.push(await commitArtifactBatchIngestion(files, audioLinks));
-      } else if (audioLinks.length > 0) {
-        commits.push(await commitArtifactBatchIngestion([], audioLinks));
-      } else {
-        commits.push(await commitTextIngestion(trimmed));
       }
 
       const artifacts = commits.flatMap((entry) => entry.artifacts);
