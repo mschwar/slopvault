@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     const sortMode = (searchParams.get("sort") as FeedSortMode) || "new";
     const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), 50);
     const cursor = searchParams.get("cursor") || undefined;
+    const offset = parseInt(searchParams.get("offset") || "0", 10);
 
     // Validate sort mode
     if (!["new", "hot", "rabbit_holes"].includes(sortMode)) {
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const result = await getFeed(sortMode, limit, cursor);
+    const result = await getFeed(sortMode, limit, cursor, offset);
 
     return NextResponse.json(result);
   } catch (error) {
