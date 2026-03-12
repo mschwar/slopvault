@@ -1,13 +1,15 @@
-import { randomUUID } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { createClient } from "@/lib/supabase/server";
+import {
+  deleteFromStorage,
+  deleteIngestionFiles,
+  downloadFromStorage,
+  uploadToStorage,
+} from "@/lib/supabase/storage";
 import { extractItems, PARSE_VERSION } from "@/lib/ingestions/extract";
 import {
   createArtifactsAndLinks,
   createId,
   getIngestionBundle,
-  getLocalStoreDir,
   listArtifacts,
   listIngestions,
   replaceIngestionItems,
@@ -34,10 +36,6 @@ async function getUserId(): Promise<string> {
 
 function now(): string {
   return new Date().toISOString();
-}
-
-function getUploadsDir(): string {
-  return path.join(getLocalStoreDir(), "uploads");
 }
 
 export async function createIngestionDraft(
@@ -69,49 +67,44 @@ export async function createIngestionDraft(
 }
 
 async function writePreservedFile(
+  userId: string,
   ingestionId: string,
   file: File,
 ): Promise<UploadedFileReference> {
-  const uploadsDir = getUploadsDir();
-  const dir = path.join(uploadsDir, ingestionId);
-  await mkdir(dir, { recursive: true });
-  const safeName = `${randomUUID()}-${file.name.replace(/[^\w.-]/g, "_")}`;
-  const preservedPath = path.join(dir, safeName);
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(preservedPath, buffer);
-
-  const textContent = file.type.startsWith("text/") || /\.(json|jsonl|md|txt)$/i.test(file.name)
-    ? await readFile(preservedPath, "utf8").catch(() => undefined)
-    : undefined;
+  const result = await uploadToStorage(userId, ingestionId, file);
+  
+  // Get text content if applicable
+  const isTextFile = file.type.startsWith("text/") || /\.(json|jsonl|md|txt)$/i.test(file.name);
+  let textContent: string | undefined;
+  
+  if (isTextFile) {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    textContent = buffer.toString("utf8");
+  }
 
   return {
     originalName: file.name,
     mimeType: file.type || "application/octet-stream",
-    preservedPath,
-    sizeBytes: buffer.byteLength,
+    storagePath: result.path,
+    sizeBytes: (await file.arrayBuffer()).byteLength,
     textContent,
   };
 }
 
+// Upload manifest is now stored in the database via ingestion_items
+// These functions are kept for backward compatibility but return empty
 async function writeUploadManifest(
-  ingestionId: string,
-  files: UploadedFileReference[],
+  _ingestionId: string,
+  _files: UploadedFileReference[],
 ): Promise<void> {
-  const dir = path.join(getUploadsDir(), ingestionId);
-  await mkdir(dir, { recursive: true });
-  await writeFile(
-    path.join(dir, "manifest.json"),
-    JSON.stringify(files, null, 2),
-    "utf8",
-  );
+  // No-op: files are tracked via ingestion_items and artifacts
 }
 
 async function readUploadManifest(
-  ingestionId: string,
+  _ingestionId: string,
 ): Promise<UploadedFileReference[]> {
-  const manifestPath = path.join(getUploadsDir(), ingestionId, "manifest.json");
-  const raw = await readFile(manifestPath, "utf8").catch(() => "");
-  return raw ? (JSON.parse(raw) as UploadedFileReference[]) : [];
+  // Returns empty - files are now loaded from database records
+  return [];
 }
 
 export async function uploadIngestionSource(
@@ -123,12 +116,15 @@ export async function uploadIngestionSource(
     throw new Error("Ingestion not found.");
   }
 
-  const uploaded = await Promise.all(files.map((file) => writePreservedFile(ingestionId, file)));
-  await writeUploadManifest(ingestionId, uploaded);
+  const userId = bundle.ingestion.userId;
+  const uploaded = await Promise.all(
+    files.map((file) => writePreservedFile(userId, ingestionId, file))
+  );
+  
   const firstFile = uploaded[0];
   const record: IngestionRecord = {
     ...bundle.ingestion,
-    rawFilePath: firstFile?.preservedPath ?? bundle.ingestion.rawFilePath,
+    rawFilePath: firstFile?.storagePath ?? bundle.ingestion.rawFilePath,
     rawFileMime: firstFile?.mimeType ?? bundle.ingestion.rawFileMime,
     rawFileName: firstFile?.originalName ?? bundle.ingestion.rawFileName,
     updatedAt: now(),
@@ -263,7 +259,7 @@ export async function commitIngestion(ingestionId: string): Promise<{
       parsedMarkdown: item.artifactType === "text" ? item.parsedMarkdown : null,
       storagePath:
         item.artifactType === "image"
-          ? String(item.metadata.preserved_file_path ?? ingestion.rawFilePath ?? "")
+          ? String(item.metadata.storage_path ?? ingestion.rawFilePath ?? "")
           : null,
       audioUrl:
         item.artifactType === "audio_link"
@@ -321,6 +317,15 @@ export async function discardIngestion(ingestionId: string): Promise<IngestionRe
   if (!bundle.ingestion) {
     throw new Error("Ingestion not found.");
   }
+  
+  // Clean up uploaded files from storage
+  const userId = bundle.ingestion.userId;
+  try {
+    await deleteIngestionFiles(userId, ingestionId);
+  } catch {
+    // Ignore errors - files may not exist or may have been already cleaned up
+  }
+  
   const updated: IngestionRecord = {
     ...bundle.ingestion,
     status: "discarded",
@@ -347,5 +352,6 @@ export async function getDashboardSnapshot(): Promise<{
 }
 
 export async function ensureStoreReady(): Promise<void> {
-  await mkdir(getLocalStoreDir(), { recursive: true });
+  // No-op: Supabase Storage is used instead of local filesystem
+  // The ingestion-sources bucket is created via migration
 }

@@ -1,3 +1,23 @@
+2026-03-12
+
+- Completed P0-2: Migrated from local JSON/filesystem to Supabase
+- Created Supabase Storage utility (`src/lib/supabase/storage.ts`) with:
+  - `uploadToStorage()` - uploads files to `ingestion-sources` bucket
+  - `downloadFromStorage()` - downloads files with RLS validation
+  - `getSignedUrl()` - generates temporary access URLs
+  - `deleteFromStorage()` / `deleteIngestionFiles()` - cleanup functions
+- Updated ingestion service to use Supabase Storage:
+  - `writePreservedFile()` now uploads to Supabase instead of local disk
+  - Files stored with user-scoped paths: `{userId}/{ingestionId}/{filename}`
+  - `discardIngestion()` cleans up uploaded files from storage
+- Updated `UploadedFileReference` interface to use `storagePath` instead of `preservedPath`
+- Updated extraction logic (`extract.ts`) to use new storage path field
+- Fixed all type errors and removed Node.js filesystem dependencies from ingestion flow
+- Updated test mocks to include Supabase Storage API
+- Created `.env.local` template for Supabase credentials
+- All 27 tests passing, build succeeds
+- Migration files already in place under `supabase/migrations/`
+
 2026-03-11
 
 - Created the missing design foundation docs: `DESIGN_SYSTEM.md`, `FRONTEND_GUIDELINES.md`, `APP_FLOW.md`, and `TECH_STACK.md`.

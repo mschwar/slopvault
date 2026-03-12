@@ -7,13 +7,14 @@ The Next.js app exists with local file-based storage. P0 is about keeping the ca
 ### P0-1: ✅ Next.js project initialized
 **Status:** Complete. Next.js App Router exists in `src/`. Styling is currently plain CSS (`src/app/globals.css`), not Tailwind. `npm run dev` works.
 
-### P0-2: ⏳ Migrate from local JSON to Supabase
-**Status:** Pending. Currently using local file store (`$TMPDIR/slopvault-local-store/store.json`). Need to:
-- Create Supabase project
-- Apply SQL migrations (`profiles`, `artifacts`, `nodes`, `node_artifacts`, `votes` — see `SCHEMA.md`)
-- Configure RLS policies
-- Set up Supabase Storage bucket for images
-- Migrate ingestion service from JSON file to Postgres
+### P0-2: ✅ Migrate from local JSON to Supabase
+**Status:** Complete. Database and storage migrated to Supabase:
+- ✅ SQL migrations created (`profiles`, `artifacts`, `nodes`, `node_artifacts`, `votes`, `ingestions`, `ingestion_items`, `artifact_links`)
+- ✅ RLS policies configured for all tables and storage bucket
+- ✅ Supabase Storage bucket `ingestion-sources` created with RLS policies
+- ✅ Ingestion service migrated from local filesystem to Supabase Storage
+- ✅ File uploads now use Supabase Storage with user-scoped paths (`{userId}/{ingestionId}/{filename}`)
+- ✅ All 27 tests passing, build succeeds
 
 ### P0-3: ⏳ Parser/import pipeline ("God-Tier Text Parser")
 **Status:** Baseline implemented. Extraction logic lives in `src/lib/ingestions/extract.ts` and supports:

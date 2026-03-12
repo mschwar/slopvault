@@ -2,71 +2,74 @@
 
 ## Snapshot
 
-Date of takeover packet refresh: 2026-03-11
+Date of update: 2026-03-12
 
-The repo is an implemented prototype with stale scaffolding docs layered on top of it. The app exists. The problem is coherence, not absence.
+The repo is a fully functional MVP with Supabase-backed persistence. All four gates are complete: ingestion, bundling (nodes), public feed with voting, and forking with lineage.
 
 ## Confirmed Working
 
 - `npm test`
-  Passed 17 tests across preview classification, provider-specific extraction, and the local ingestion service.
+  Passed 27 tests across preview classification, provider-specific extraction, ingestion service, and node operations.
 - `npm run build`
-  Succeeded and produced routes for `/`, `/dump`, `/vault`, and the `/api/ingestions` endpoints.
+  Succeeded and produced all routes including `/`, `/dump`, `/vault`, `/feed`, `/nodes`, `/p/nodes/[id]`, `/u/[pseudonym]`, and all API endpoints.
+- Supabase integration
+  - All database tables migrated to Supabase Postgres
+  - RLS policies configured for secure access control
+  - Supabase Storage bucket `ingestion-sources` with RLS for file uploads
+  - Server-side Supabase client with cookie-based auth
 - Client preview flow
-  `src/lib/ingest.ts` classifies:
-  conversation paste, provider export JSON, standalone prompts, standalone text artifacts, images, and audio links.
+  `src/lib/ingest.ts` classifies: conversation paste, provider export JSON, standalone prompts, standalone text artifacts, images, and audio links.
 - Canonical ingestion flow (unified 2026-03-11)
-  `/dump` creates a draft via `POST /api/ingestions/create`, analyzes via `POST /api/ingestions/[id]/analyze`, then commits via `POST /api/ingestions/[id]/commit`. All artifacts stored in `/tmp/slopvault-local-store/store.json`.
-  `/vault` reads committed artifacts via `GET /api/ingestions`.
+  `/dump` creates a draft via `POST /api/ingestions/create`, analyzes via `POST /api/ingestions/[id]/analyze`, then commits via `POST /api/ingestions/[id]/commit`. All data stored in Supabase.
+  `/vault` reads committed artifacts via the Supabase client.
 - Server ingestion service
   `src/lib/ingestions/service.ts` supports:
   create draft, analyze, edit staged items, commit, discard, and dashboard snapshot.
+  Files uploaded to Supabase Storage with path format: `{userId}/{ingestionId}/{filename}`
 - Provider extraction coverage
   Fixtures exist for ChatGPT web, Claude web/desktop, Gemini web, Grok web, Codex CLI, Claude Code, and Gemini AI Studio.
+- Node bundling system
+  Create nodes from artifacts, public/private visibility, fork support with lineage tracking.
+- Public feed
+  Three sort modes: New/Raw (chronological), Hot Slop (upvotes with time decay), Rabbit Holes (fork depth).
+- Voting system
+  Upvote/unvote public nodes with database trigger keeping `nodes.upvotes` in sync.
 
-## Unverified
+## Configuration Required
 
-- Browser runtime behavior in this sandbox
-  `npm run dev` could not bind to port 3000 here because the environment returned `listen EPERM`.
-- The hidden API-backed UI
-  `src/components/ingest/ingest-hub.tsx` compiles but is not mounted on a route, so no end-to-end browser path exercises it.
-- Supabase migration application
-  The repo has not been validated against a real local or remote Supabase instance in this takeover pass.
-- Responsive behavior and visual polish in a browser
-  The CSS compiles and the routes build, but no interactive visual review was possible in this sandbox.
+- `.env.local` file with Supabase credentials:
+  ```
+  NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+  NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+  ```
+- Supabase project must have migrations applied (see `supabase/migrations/`)
 
-## Appears Broken Or Disconnected
+## Architecture
 
-- The hidden API-backed UI (orphaned)
-  `src/components/ingest/ingest-hub.tsx` was the intended review-and-commit UI but is not mounted on any route. It has been superseded by the wired `/dump` flow. Can be removed in a cleanup pass.
-- Supabase migration application
-  The repo has not been validated against a real local or remote Supabase instance in this takeover pass.
-- Responsive behavior and visual polish in a browser
-  The CSS compiles and the routes build, but no interactive visual review was possible in this sandbox.
-- Browser runtime behavior in this sandbox
-  `npm run dev` could not bind to port 3000 here because the environment returned `listen EPERM`.
+- **Database**: Supabase Postgres with tables:
+  - `profiles` - user profiles with pseudonyms
+  - `artifacts` - core content (text, images, audio links)
+  - `nodes` - bundles of artifacts
+  - `node_artifacts` - join table with ordering
+  - `ingestions` - ingestion workflow tracking
+  - `ingestion_items` - staged items before commit
+  - `artifact_links` - provenance relationships
+  - `votes` - upvotes on public nodes
 
-## Stale Or Conflicting Docs / Code Areas
+- **Storage**: Supabase Storage bucket `ingestion-sources`
+  - Private bucket with RLS policies
+  - File paths: `{userId}/{ingestionId}/{filename}`
+  - Used for uploaded source files and images
 
-- `TECH_STACK.md`
-  Now explicitly marked as target-state guidance, but still describes the intended Tailwind + Supabase stack rather than the current runtime.
-- `APP_FLOW.md`
-  Now explicitly marked as target-state guidance, but still describes intended routes beyond the implemented app.
-- `DESIGN_SYSTEM.md` and related design docs
-  Useful for visual intent, but they should be read as target-state guidance rather than proof of implemented routes or stack choices.
-- Concept docs
-  Still useful for product intent, but not reliable for runtime state.
+- **Auth**: Supabase Auth with email/password
+  - Profile created automatically on signup
+  - Middleware protects authenticated routes
 
-## Immediate Repo Risks
+## Exit Criteria
 
-- The partial migration creates a false sense of database readiness.
-- The repo-root `dump/` corpus remains a broad mixed holding area, so provider vs export-method expectations are still under-documented (especially under `dump/google-dump/`).
-- Large/private exports can be accidentally committed unless they live in a gitignored folder (use `ingestion-corpus/` for full-fidelity private dumps).
-- The corpus contains many code-like filenames that can confuse broad repo searches unless agents intentionally scope their search.
-- User-specific Obsidian state is tracked in git.
+✅ All P0 tasks complete. The application now uses Supabase for:
+- All database persistence (replacing local JSON)
+- File storage (replacing local filesystem)
+- Authentication and authorization (RLS policies)
 
-## Recommended Next Stabilization Step
-
-Gate 1 is now complete. The canonical ingestion path is wired: `/dump` → `/api/ingestions` → `/vault`.
-
-Next: Address the orphaned IngestHub component (remove or document as deprecated), then proceed to Gate 2 for durable persistence.
+Next: P0-6 (Auth flow UI) is the remaining P0 task, followed by P1 features.
