@@ -1,8 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import {
-  deleteFromStorage,
   deleteIngestionFiles,
-  downloadFromStorage,
   uploadToStorage,
 } from "@/lib/supabase/storage";
 import { extractItems, PARSE_VERSION } from "@/lib/ingestions/extract";
