@@ -9,7 +9,7 @@ The repo is a fully functional MVP with Supabase-backed persistence. All four ga
 ## Confirmed Working
 
 - `npm test`
-  Passed 27 tests across preview classification, provider-specific extraction, ingestion service, and node operations.
+  Passed 45 tests across preview classification, provider-specific extraction, ingestion service, storage utilities, and node operations.
 - `npm run build`
   Succeeded and produced all routes including `/`, `/dump`, `/vault`, `/feed`, `/nodes`, `/p/nodes/[id]`, `/u/[pseudonym]`, and all API endpoints.
 - Supabase integration
