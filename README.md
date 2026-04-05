@@ -34,14 +34,8 @@ npm run build
 
 - Route `/dump`: “The Dumpster” ingestion UI (paste + drop files, preview, commit).
 - Route `/vault`: reads committed artifacts from the same local ingestion store as the API.
-- API `/api/ingestions/*`: local ingestion service (draft -> analyze -> commit).
-
-Local store:
-
-- Default: `$TMPDIR/slopvault-local-store/store.json` (macOS) via `os.tmpdir()`.
-- Override with `SLOPVAULT_STORE_DIR=/some/path`.
-
-To reset local state, delete the store directory.
+- API `/api/ingestions/*`: ingestion service backed by Supabase (draft -> analyze -> commit).
+- Files uploaded to Supabase Storage (`ingestion-sources` bucket with RLS).
 
 ## Repo Structure
 
@@ -57,6 +51,9 @@ slopvault/
 ├── CURRENT_STATE.md            # What is confirmed working vs broken right now
 ├── SCHEMA.md                  # Data model and API surface
 ├── .gitignore
+├── CHANGELOG.md               # Release changelog
+├── TODOS.md                   # Deferred work tracking
+├── VERSION                    # Current version (4-digit format)
 ├── .gitattributes
 │
 ├── 01_THE_NORTH_STAR.md       # Original vision doc
@@ -70,8 +67,10 @@ slopvault/
 │
 ├── src/                       # Application source (Next.js App Router + ingestion service)
 │
+├── tests/                    # Vitest unit and integration tests
+│
 └── supabase/
-    └── migrations/            # SQL migration files (placeholder)
+    └── migrations/            # SQL migration files
 ```
 
 ## How to Continue From Here

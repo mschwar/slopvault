@@ -76,6 +76,16 @@ vi.mock("@/lib/supabase/server", () => ({
         }),
       })),
     })),
+    storage: {
+      from: vi.fn(() => ({
+        upload: vi.fn(() => Promise.resolve({ error: null })),
+        download: vi.fn(() => Promise.resolve({ data: new Blob(), error: null })),
+        getPublicUrl: vi.fn((path) => ({ data: { publicUrl: `https://test.supabase.co/storage/v1/object/public/${path}`, fullPath: path } })),
+        createSignedUrl: vi.fn(() => Promise.resolve({ data: { signedUrl: "https://test.signed.url" }, error: null })),
+        remove: vi.fn(() => Promise.resolve({ error: null })),
+        list: vi.fn(() => Promise.resolve({ data: [], error: null })),
+      })),
+    },
   })),
 }));
 

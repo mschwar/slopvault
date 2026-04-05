@@ -1,5 +1,4 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
+
 import {
   buildPromptFamilyFingerprint,
   buildPromptFingerprint,
@@ -448,7 +447,7 @@ async function buildArtifactBatchItems(
         parsedMarkdown: null,
         title: file.originalName,
         metadata: {
-          preserved_file_path: file.preservedPath,
+          storage_path: file.storagePath,
           original_filename: file.originalName,
           file_size_bytes: file.sizeBytes,
           source_surface: "artifact-batch",
@@ -459,9 +458,7 @@ async function buildArtifactBatchItems(
       continue;
     }
 
-    const textContent =
-      file.textContent ??
-      (await readFile(file.preservedPath, "utf8").catch(() => ""));
+    const textContent = file.textContent ?? "";
     items.push({
       position: position++,
       artifactType: "text",
@@ -470,7 +467,7 @@ async function buildArtifactBatchItems(
       parsedMarkdown: toMarkdown(textContent),
       title: createTitle(textContent, file.originalName),
       metadata: {
-        preserved_file_path: file.preservedPath,
+        storage_path: file.storagePath,
         original_filename: file.originalName,
         file_size_bytes: file.sizeBytes,
         source_surface: "artifact-batch",

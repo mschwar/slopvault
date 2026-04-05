@@ -155,7 +155,7 @@ export interface UpdateNodeInput {
 export interface UploadedFileReference {
   originalName: string;
   mimeType: string;
-  preservedPath: string;
+  storagePath: string;
   sizeBytes: number;
   textContent?: string;
 }
