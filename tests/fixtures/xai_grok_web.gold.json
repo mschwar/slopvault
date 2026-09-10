@@ -1,0 +1,7 @@
+{
+  "kind": "conversation_paste",
+  "providerHint": "xai",
+  "expectedProvider": "xai",
+  "expectedSurface": "grok-web",
+  "expectedRoles": ["prompt", "response"]
+}

@@ -1,0 +1,7 @@
+{
+  "kind": "conversation_paste",
+  "providerHint": "google",
+  "expectedProvider": "google",
+  "expectedSurface": "gemini-ai-studio",
+  "expectedRoles": ["prompt", "response"]
+}

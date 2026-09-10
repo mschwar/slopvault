@@ -1,0 +1,7 @@
+{
+  "kind": "conversation_paste",
+  "providerHint": "auto",
+  "expectedProvider": "openai",
+  "expectedSurface": "chatgpt-web",
+  "expectedRoles": ["prompt", "response", "prompt", "response"]
+}

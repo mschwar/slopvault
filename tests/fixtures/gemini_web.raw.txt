@@ -1,0 +1,9 @@
+User 12:46 PM
+How should we structure SlopVault so that it works for chaotic research sessions?
+
+Model 12:46 PM
+![Thinking](https://www.gstatic.com/aistudio/watermark/watermark.png)Thoughts
+
+Expand to view model thoughts
+
+The right wedge is a private vault with structured provenance. Start artifact-first and preserve prompt, model, timestamps, and related-item evidence behind the scenes.

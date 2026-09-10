@@ -1,0 +1,334 @@
+{
+  "main": {
+    "id": "da302afcd3da0aef",
+    "type": "split",
+    "children": [
+      {
+        "id": "96017e8348bbbfc1",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "640bde790b245480",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "GPT.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "GPT"
+            }
+          },
+          {
+            "id": "fac28ec6fdfa7f38",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "dump/Grok.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Grok"
+            }
+          },
+          {
+            "id": "bcb322f5c2ae4370",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "01_THE_NORTH_STAR.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "01_THE_NORTH_STAR"
+            }
+          },
+          {
+            "id": "cfbafb8bc51e825d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "02_THE_BUSINESS_MEMO.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "02_THE_BUSINESS_MEMO"
+            }
+          },
+          {
+            "id": "c76cfea0da8c82b8",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "02_THE_BUSINESS_MEMO.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "02_THE_BUSINESS_MEMO"
+            }
+          },
+          {
+            "id": "f7a2bdcf62bd4fc8",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "dump/Grok-firstpass.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Grok-firstpass"
+            }
+          },
+          {
+            "id": "741fb5062c890b73",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "README.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "README"
+            }
+          },
+          {
+            "id": "c35e8e312293a4d2",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "BACKLOG.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "BACKLOG"
+            }
+          }
+        ],
+        "currentTab": 7
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "5e309ec5e8cc17ef",
+    "type": "split",
+    "children": [
+      {
+        "id": "eb15cad1b26913d6",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "82ec293a38b952f2",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "5ee4d247a6c43f15",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "fe92040aedba1181",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "27148014cededdbf",
+    "type": "split",
+    "children": [
+      {
+        "id": "22179ee25d79e15b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2d98e98c72afa170",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Grok.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Grok"
+            }
+          },
+          {
+            "id": "25172c762c7c8b66",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Grok.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Grok"
+            }
+          },
+          {
+            "id": "996755e197d1f334",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "c6b62fa004a8e928",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "3ed72ed4736886f3",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Grok.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Grok"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "c35e8e312293a4d2",
+  "lastOpenFiles": [
+    "RUNBOOK.md",
+    "ROADMAP.md",
+    "scratchpad/seeds-trace-spec.md",
+    "dump/xai-dump/README.md",
+    "dump/openai-dump/README.md",
+    "dump/anthropic-dump/README.md",
+    "dump/README.md",
+    "scratchpad/agent-handoff-seeds-trace.md",
+    "src/components/app/AppNav.tsx",
+    "src/components/app",
+    "tests/ingest.test.ts",
+    "src/components/vault/VaultClient.tsx",
+    "src/components/vault",
+    "src/components/dump/ProviderGuidePanel.tsx",
+    "src/components/dump/PreviewList.tsx",
+    "src/components/dump/DumpWorkspace.tsx",
+    "src/components/dump",
+    "src/app/vault/page.tsx",
+    "dump/google-dump/year4-5.PNG",
+    "dump/google-dump/year2-3.PNG",
+    "dump/google-dump/year1.PNG",
+    "dump/google-dump/Workflow.md",
+    "dump/google-dump/Workflow (1).md",
+    "dump/google-dump/Wenner Gren_10.20.2015.md",
+    "dump/google-dump/Wenner Gren_10.20.2015 (2).md",
+    "dump/google-dump/Wenner Gren_10.20.2015 (1).md",
+    "dump/google-dump/USER.md",
+    "dump/google-dump/USER (2).md",
+    "dump/google-dump/USER (1).md",
+    "dump/google-dump/unofficialtranscripts2020_UNM.md",
+    "dump/google-dump/unofficialtranscripts2020_UNM (2).md",
+    "dump/google-dump/unofficialtranscripts2020_UNM (1).md",
+    "dump/google-dump/Trainings, skills, experience.md",
+    "dump/google-dump/Trainings, skills, experience (2).md",
+    "dump/google-dump/Trainings, skills, experience (1).md",
+    "dump/google-dump/TOOLS.md",
+    "dump/google-dump/TOOLS (2).md",
+    "dump/google-dump/TOOLS (1).md",
+    "dump/google-dump/ThomasLoS_Thomas.md",
+    "dump/google-dump/tension_evolution.png",
+    "dump/google-dump/tension_evolution (1).png",
+    "dump/google-dump/Screenshot 2025-11-12 183626.png",
+    "dump/google-dump/Screenshot 2025-08-07 at 5.39.42 PM.png",
+    "dump/google-dump/Screenshot 2025-07-08 at 8.31.57 PM.png",
+    "dump/google-dump/Screenshot 2025-06-24 at 2.53.09 PM.png",
+    "dump/google-dump/Screenshot 2025-06-24 at 2.53.09 PM (1).png"
+  ]
+}

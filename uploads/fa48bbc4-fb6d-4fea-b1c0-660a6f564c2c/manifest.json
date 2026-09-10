@@ -1,0 +1,9 @@
+[
+  {
+    "originalName": "test-artifact.txt",
+    "mimeType": "text/plain",
+    "preservedPath": "uploads/fa48bbc4-fb6d-4fea-b1c0-660a6f564c2c/35fa706b-ea9f-4b73-9f98-8ebd34f5965b-test-artifact.txt",
+    "sizeBytes": 35,
+    "textContent": "This is a standalone text artifact."
+  }
+]
