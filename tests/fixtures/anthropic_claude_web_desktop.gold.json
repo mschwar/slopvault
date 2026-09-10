@@ -1,0 +1,7 @@
+{
+  "kind": "conversation_paste",
+  "providerHint": "anthropic",
+  "expectedProvider": "anthropic",
+  "expectedSurface": "claude-web-desktop",
+  "expectedRoles": ["prompt", "response"]
+}

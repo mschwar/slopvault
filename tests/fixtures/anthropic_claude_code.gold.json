@@ -1,0 +1,7 @@
+{
+  "kind": "source_json_upload",
+  "providerHint": "anthropic",
+  "expectedProvider": "anthropic",
+  "expectedSurface": "claude-code",
+  "expectedRoles": ["prompt", "response", "response", "artifact"]
+}

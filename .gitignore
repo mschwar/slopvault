@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+.next/
+out/
+build/
+dist/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Supabase
+.supabase/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Vercel
+.vercel
+
+# Testing
+coverage/
+
+# Local ingestion corpora / scratch
+# These commonly contain full-fidelity user exports and should never be committed.
+ingestion-corpus/
+archive/
+dump/_local/*
+!dump/_local/README.md
+dump/_private/*
+!dump/_private/README.md
+
+# Local-only ignore helper (ripgrep / editor workflows)
+.ignore

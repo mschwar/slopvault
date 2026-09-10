@@ -1,0 +1,4 @@
+{"type":"user","message":{"role":"user","content":"add, commit, and push"}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"thinking","thinking":"I should inspect git status first."}]}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"I checked git status and found unstaged changes."}]}}
+{"type":"progress","data":{"fullOutput":"On branch main\nChanges not staged for commit:\n  modified: README.md"}}

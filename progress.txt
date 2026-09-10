@@ -1,0 +1,71 @@
+2026-03-11
+
+- Created the missing design foundation docs: `DESIGN_SYSTEM.md`, `FRONTEND_GUIDELINES.md`, `APP_FLOW.md`, and `TECH_STACK.md`.
+- Locked the MVP design hierarchy to `capture -> retrieve -> share -> browse`.
+- Made the signed-in product vault-first instead of feed-first.
+- Set the first public share unit to the individual artifact.
+- Defined prompt + result as the default presentation model for shareable text artifacts.
+- Positioned seed and journey as provenance extensions that support the vault rather than replacing it.
+- Updated `AGENTS.md` so future build sessions load the new design docs first for frontend work.
+- Locked ingestion to one clear hub that accepts copy-paste, provider export JSON/history uploads, standalone prompt intake, and standalone artifact intake.
+- Added the requirement for in-product, step-by-step export guidance for supported providers.
+- Propagated the ingestion model into `PRD.md`, `ARCHITECTURE.md`, `ROADMAP.md`, and `BACKLOG.md` so implementation priorities match the current product direction.
+- Implemented a typed ingest contract in `src/lib/ingest-contract.ts` for preview and save flows.
+- Implemented heuristic input classification for pasted text, provider export JSON, standalone prompts, standalone artifacts, images, and audio links in `src/lib/ingest.ts`.
+- Built the first working `/dump` route with unified paste/upload intake, provider export guides, import preview cards, and save behavior into a local demo vault.
+- Added a `/vault` demo route so the preview-to-save loop is testable before Supabase wiring exists.
+- Verified the implementation with `npm test` and `npm run build`.
+- Current limitation: save persists to local browser storage only; it is a UX scaffold until artifact creation is wired to the backend.
+
+Gate 2 - Bundling and Optional Sharing (2026-03-11)
+
+- Implemented Node data model and service layer for artifact bundling.
+- Added multi-select capability to the Vault for packaging related artifacts.
+- Built Node creation flow with title, hook, and description metadata.
+- Implemented Node detail view with mixed-media rendering (text, images, audio links).
+- Added Private/Public visibility toggling for Nodes with corresponding RLS and API protection.
+- Created public shareable routes for Nodes (/p/nodes/[id]) accessible without authentication.
+- Updated navigation to dynamically list user's Nodes.
+- Verified Node service with unit tests and mocked Supabase client.
+
+Gate 3 - Public Feed and Discovery (2026-03-12)
+
+- Added database trigger `on_vote_change` to sync `nodes.upvotes` count when votes are inserted/deleted.
+- Created `votes` table with RLS policies for secure voting.
+- Built public feed API (`/api/feed`) supporting three sort modes:
+  - "New/Raw" — chronological firehose
+  - "Hot Slop" — upvotes weighted by recency (Hacker News style)
+  - "Rabbit Holes" — sorted by fork depth (most remixed content)
+- Implemented upvote/unvote API endpoints (`/api/nodes/[id]/vote`).
+- Created feed page (`/feed`) with sort mode toggle and infinite scroll pagination.
+- Added upvote UI to feed cards with visual feedback (orange highlight when voted).
+- Built user profile pages (`/u/[pseudonym]`) showing public nodes and join date.
+- Updated navigation to include Feed link.
+- Fixed Supabase client initialization to support build-time rendering.
+- Added Suspense boundary to `/nodes/new` page to fix prerendering error.
+
+Gate 4 - Forking and Public Lineage (2026-03-12)
+
+- Added database trigger `on_fork_change` to sync `nodes.fork_count` when nodes are forked.
+- Created `/api/nodes/[id]/fork` endpoint for authenticated forking of public nodes.
+- Implemented `forkNode` service function that copies node and artifacts with parent reference.
+- Added `ForkButton` component with loading and success states.
+- Built `LineageView` component showing parent, children, and sibling forks.
+- Built `LineageMini` component for compact lineage display in headers.
+- Updated public node page (`/p/nodes/[id]`) with fork button and full lineage section.
+- Enhanced Rabbit Holes feed to show both fork counts and remix indicators.
+- Added fork depth calculation in lineage queries.
+- Created `getNodeLineage`, `getForkTree`, and `findForkRoot` utility functions.
+
+MVP Complete!
+
+All four gates have been implemented:
+- Gate 1: Capture (The Dumpster) - paste, parse, save
+- Gate 2: Retrieve (The Vault/Nodes) - organize, bundle, manage
+- Gate 3: Share (Feed/Profiles) - publish, discover, vote
+- Gate 4: Lineage (Forking) - remix, trace provenance
+
+Next steps (Post-MVP):
+- Deploy to production
+- Test with real users
+- Iterate based on feedback
