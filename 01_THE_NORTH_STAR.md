@@ -1,7 +1,7 @@
 # SLOPVAULT: THE NORTH STAR
 
 ## The Origin Story (The "Why")
-SlopVault was born from the friction of ADHD hyperfocus in the AI era. In March 2026, our founder (an unemployed anthropologist) was running errands and listening to an audiobook when the following statement sparked an idea, "most of worlds GDP relies on semiconductors, a product that didn’t exist ~75 years ago". This triggered an AI research sprint on the technological substrates of human civilization. To do this, he had to use ChatGPT, Gemini, Google Keep (at traffic lights while driving), a Mac text editor, GPT again, Grok, and Obsidian.  The AI ecosystem is a fragmented series of walled gardens, so he had to manually `Ctrl+A` and `Ctrl+V` raw text across 6 platforms to keep thoughts cohesive and to preserve information. 
+SlopVault was born from the friction of Attention-Deficit/Hyperactivity Disorder (ADHD) hyperfocus in the AI era. In March 2026, our founder (an unemployed anthropologist) was running errands and listening to an audiobook when the following statement sparked an idea, "most of the world's Gross Domestic Product (GDP) relies on semiconductors, a product that didn't exist ~75 years ago". This triggered an AI research sprint on the technological substrates of human civilization. To do this, he had to use ChatGPT, Gemini, Google Keep (at traffic lights while driving), a Mac text editor, ChatGPT again, Grok, and Obsidian. The AI ecosystem is a fragmented series of walled gardens, so he had to manually `Ctrl+A` and `Ctrl+V` raw text across 6 platforms to keep thoughts cohesive and to preserve information.
 
 **The Epiphany:** AI generation is infinite and cheap. AI curation, lineage, and integration are fundamentally broken. 
 

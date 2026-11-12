@@ -2,7 +2,9 @@
 
 ## Problem
 
-Generative AI has made creation nearly free. A single user can produce dozens of text outputs, images, and audio files in a day across ChatGPT, Claude, Gemini, Grok, Midjourney, Suno, and others. But there is no unified place to store, organize, retrieve, and continue that work with its provenance intact.
+Users paste raw chat transcripts, upload provider history JSON exports, or drop image and audio links into `/dump`, run deterministic parsing and provenance extraction, and store searchable private and sharable records in `/vault`. See [README.md](README.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
+
+Generative AI has made creation nearly free. A single user can produce dozens of text outputs, images, and audio files in a day across ChatGPT, Claude, Gemini, Grok, Midjourney, Suno, and others. Yet there is no unified place to store, organize, retrieve, and continue that work with its provenance intact.
 
 The current state:
 
@@ -13,13 +15,13 @@ The current state:
 
 ### The Founding Use Case
 
-In March 2026, the founder went on a 12-hour research sprint about the technological substrates of human civilization. To complete this single creative session, they used ChatGPT, Gemini, Google Keep (while driving), a Mac plaintext editor, GPT again, Grok, Gemini again, and Obsidian — 6+ applications, with manual Ctrl+A → Ctrl+V as the only integration layer between them. They described their workflow as: "There wasn't an easy way (that I know of) to share or export the raw conversations, so I Ctrl+A and then Ctrl+V'ed into plaintext editor app."
+In March 2026, the founder went on a 12-hour research sprint about the technological substrates of human civilization. To complete this single creative session, they used ChatGPT, Gemini, Google Keep (while driving), a Mac plaintext editor, ChatGPT again, Grok, Gemini again, and Obsidian — 6+ applications, with manual Ctrl+A → Ctrl+V as the only integration layer between them. They described their workflow as: "There wasn't an easy way (that I know of) to share or export the raw conversations, so I Ctrl+A and then Ctrl+V'ed into plaintext editor app."
 
 That workflow is the problem. The AI companies build amazing generators but weak archives and even weaker integrators. SlopVault is the missing capture, retrieval, and provenance layer.
 
 ## Users
 
-### Primary: The ADHD Creator / Systems Thinker
+### Primary: The Attention-Deficit/Hyperactivity Disorder (ADHD) Creator / Systems Thinker
 
 Goes on deep research rabbit holes. Uses 3-5 AI tools in a single session. Produces volumes of output. Abandons organizing it because the friction is too high. Wants a "just dump it and go" solution that also makes retrieval possible later. The founder is this person.
 
@@ -46,9 +48,9 @@ Wants to see the recipe behind cool outputs — the prompt, the model, the uploa
 - Build the best place on the internet to paste a raw ChatGPT/Claude conversation and get a clean, saved, searchable artifact. The parser is the hero feature.
 - Make the private vault genuinely useful before any social layer exists.
 - Make ingestion itself a reason to adopt the product: if a user goes through the trouble of exporting provider history files, SlopVault should immediately reward that effort with structure, retrieval value, and lock-in.
-- Build an artifact-first MVP on top of a hidden provenance ledger that preserves the evidence needed for later trace reconstruction.
+- Build an artifact-first Minimum Viable Product (MVP) on top of a hidden provenance ledger that preserves the evidence needed for later trace reconstruction.
 - Ship a working MVP in 6 weeks.
-- MVP supports three media types: text (with full parsing), images (JPG/PNG upload, no special parsing), and audio links (URL references to Suno/Udio, not hosted audio). Text parsing is the differentiator; image and audio are basic upload/link storage.
+- MVP supports three media types: text (with full parsing), images via Joint Photographic Experts Group (JPG) or PNG upload (no special parsing), and audio links (URL references to Suno/Udio, not hosted audio). Text parsing is the differentiator; image and audio are basic upload/link storage.
 
 ## MVP Ingestion Model
 

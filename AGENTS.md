@@ -6,7 +6,7 @@ Build SlopVault: a web platform where AI creators can paste, parse, organize, re
 
 ## Founder Context
 
-The founder is an unemployed anthropologist, not a developer or business person. They have ADHD and are an "online ghost" — deeply averse to self-promotion and social media. They are not able to review code in technical detail; they evaluate by using the product. Agents should write clear, self-documenting code and never assume the founder can debug implementation issues.
+The founder is an unemployed anthropologist, not a developer or business person. They have Attention-Deficit/Hyperactivity Disorder (ADHD) and are an "online ghost" — deeply averse to self-promotion and social media. They are not able to review code in technical detail; they evaluate by using the product. Agents should write clear, self-documenting code and never assume the founder can debug implementation issues.
 
 ## The Origin Story (Read This — It Defines Everything)
 
@@ -39,7 +39,7 @@ For any frontend, UX, or visual work, read these before making changes:
 
 1. `DESIGN_SYSTEM.md` — tokens, layout rules, hierarchy, state styling, and component recipes.
 2. `FRONTEND_GUIDELINES.md` — screen hierarchy, interaction rules, shell behavior, and sharing rules.
-3. `APP_FLOW.md` — current route map, screen priorities, and the canonical MVP user flow.
+3. [APP_FLOW.md](APP_FLOW.md) — current route map, screen priorities, and the canonical Minimum Viable Product (MVP) user flow.
 4. `TECH_STACK.md` — design-facing technical constraints for the frontend.
 5. `progress.txt` — latest design and implementation progress notes.
 6. `LESSONS.md` — things we already learned and should not relearn the hard way.
@@ -62,7 +62,7 @@ For any frontend, UX, or visual work, read these before making changes:
 
 8. **Provenance before feed.** The public feed still matters, and the three feed modes remain part of the longer-term product direction. But early-stage differentiation comes from provenance-aware capture and retrieval, not from social mechanics. Do not build the feed before the parser, vault, metadata capture, related-item surfaces, and manual correction flows are working.
 
-9. **Respect the concept docs and the test corpus.** The files in `01_*`, `02_*`, and `03_*` are archival. Preserve them as-is. The repo-root folder `dump/` is an active ingestion test corpus and holding area (provider buckets and export-method experiments). Preserve raw files exactly when possible; add sidecar notes/manifests instead of editing source data.
+9. **Respect the concept docs and the test corpus.** Preserve the founding intent in [01_THE_NORTH_STAR.md](01_THE_NORTH_STAR.md), [02_THE_BUSINESS_MEMO.md](02_THE_BUSINESS_MEMO.md), and [03_THE_PRD_AND_SCHEMA.md](03_THE_PRD_AND_SCHEMA.md) while keeping all top-level guides compliant with `tests/test_doc_hygiene.py`. The repo-root folder `dump/` is an active ingestion test corpus and holding area (provider buckets and export-method experiments). Preserve raw files in `dump/` when possible; add sidecar notes or manifests instead of editing raw sample data.
 
 ## Corpus Steward
 
@@ -70,8 +70,8 @@ This repo treats corpus hygiene as production work. A parser is only as good as 
 
 Rules:
 
-1. Do not commit private exports or PII. Use `dump/_private/` or `dump/_local/` (both gitignored) for anything sensitive or WIP.
-2. Keep committed samples in provider buckets (`dump/openai-dump/`, `dump/google-dump/`, etc.) and preserve raw files when possible.
+1. Do not commit private exports or Personally Identifiable Information (PII). Use `dump/_private/` or `dump/_local/` (both gitignored) for anything sensitive or Work in Progress (WIP).
+2. Keep committed samples in provider buckets (`dump/openai-dump/`, `dump/google-dump/`, and peer provider folders) and preserve raw files when possible.
 3. Prefer sidecars over edits. Use `MANIFEST-{filename}.md` for per-sample notes. Use `MANIFEST.md` only for directory-level inventories.
 4. Canonical repo-root seed files live outside `dump/`:
    `GPT-original-seed.txt` and `gemini-2.txt`.
@@ -88,7 +88,7 @@ Rules:
 - Tech stack direction: Next.js + Tailwind + Supabase.
 - Monetization direction: freemium storage tiers ($8/mo for media-heavy vaults).
 - The Substrate project is the canonical test case and initial seed data.
-- MVP supports text (primary), images (JPG/PNG), and audio links. Text parsing is the hero feature; image/audio are upload-only with no special parsing.
+- MVP supports text (primary), images in Joint Photographic Experts Group (JPG) or PNG format, and audio links. Text parsing is the hero feature; image and audio are upload-only with no special parsing.
 - The public layer still includes three feed modes: "New/Raw", "Hot Slop", and "Rabbit Holes", but those are later-phase features, not the center of the initial MVP.
 
 ### Assumed (reasonable inferences, not yet validated)
@@ -108,7 +108,7 @@ Rules:
 - How much of the hidden provenance ledger should be visible in the first MVP UI beyond related-item hints and metadata panels.
 - Downvote mechanic: Reddit uses downvotes for quality control. Do we add downvotes, or just upvotes? The brainstorm mentions "brutal democratization" but only specifies upvotes in the MVP spec.
 
-## SDLC Bumper Rails (For AI Agents)
+## Software Development Life Cycle (SDLC) Bumper Rails (For AI Agents)
 
 The founder is not a developer. They may give you instructions that violate standard Git or SDLC workflows (e.g., "merge this then commit it" or "push to main"). You are the technical guardrail. 
 
@@ -147,3 +147,14 @@ A piece of work is "done" when:
 3. It does not introduce dependencies or features not justified by `BACKLOG.md` P0/P1.
 4. It looks right in dark mode. If it doesn't look right in dark mode, it is not done.
 5. It has been tested with at least one real raw-paste from ChatGPT and one from Claude, including validation that the parser or intake layer preserves useful provenance metadata.
+6. Active top-level documentation passes `/usr/bin/python3 -m unittest tests/test_doc_hygiene.py -v`.
+
+## Documentation Hygiene Gate
+
+Keep active top-level guides concrete and verifiable. Scope includes [README.md](README.md), [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), [ARCHITECTURE.md](ARCHITECTURE.md), [APP_FLOW.md](APP_FLOW.md), [CURRENT_STATE.md](CURRENT_STATE.md), [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md), [FRONTEND_GUIDELINES.md](FRONTEND_GUIDELINES.md), [PRD.md](PRD.md), [ROADMAP.md](ROADMAP.md), [01_THE_NORTH_STAR.md](01_THE_NORTH_STAR.md), [02_THE_BUSINESS_MEMO.md](02_THE_BUSINESS_MEMO.md), and [03_THE_PRD_AND_SCHEMA.md](03_THE_PRD_AND_SCHEMA.md).
+
+1. Lead human-facing guides with plain-English explanations of what inputs enter the app, what checks or parsing steps run, and what outputs are stored or rendered before introducing internal terms.
+2. Keep [README.md](README.md) plain UTF-8 without a Byte Order Mark (BOM) and maintain a `## TL;DR` section of `1..60` words.
+3. Keep prose sentences at or under `45` words, and avoid banned AI filler and ambiguous modals.
+4. Expand unfamiliar uppercase acronyms at first use as `Full Term (ACRONYM)`, and keep all relative Markdown links and `#heading` anchors valid with zero `file://` URLs.
+5. Run `/usr/bin/python3 -m unittest tests/test_doc_hygiene.py -v` whenever modifying any scoped guide.

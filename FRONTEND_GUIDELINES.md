@@ -2,11 +2,13 @@
 
 ## Purpose
 
-This document turns the product direction into frontend rules. It defines what the user sees first, what stays secondary, and how the UI should behave across screens.
+Frontend authors take the routes in [APP_FLOW.md](APP_FLOW.md) and tokens in [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md), apply the layout, navigation, and accessibility rules below, and deliver consistent dark-mode screens for `/dump`, `/vault`, and `/artifact/[id]`.
 
-## MVP Product Architecture
+This document turns the product direction into frontend rules. It defines what the user sees first, what stays secondary, and how the interface behaves across screens.
 
-The MVP is not a feed product. It is a personal vault with seamless sharing.
+## Minimum Viable Product (MVP) Architecture
+
+The MVP is not a feed product. It is a personal vault with direct sharing.
 
 Primary jobs:
 

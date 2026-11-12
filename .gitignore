@@ -44,6 +44,8 @@ next-env.d.ts
 
 # Testing
 coverage/
+__pycache__/
+*.py[cod]
 
 # Local ingestion corpora / scratch
 # These commonly contain full-fidelity user exports and should never be committed.

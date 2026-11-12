@@ -1,6 +1,8 @@
 # ROADMAP.md — SlopVault Phased Execution Plan
 
-## Phase 0: Clarify and Stabilize (COMPLETE → Gate 1 Done)
+Each phase takes concrete intake samples and feature specs from [PRD.md](PRD.md), verifies parser, database, and UI behavior via `npm test` and [CURRENT_STATE.md](CURRENT_STATE.md), and ships working Minimum Viable Product (MVP) routes.
+
+## Phase 0: Clarify and Stabilize (Complete → Gate 1 Done)
 
 **Status:** Gate 1 complete. The canonical ingestion path is wired: `/dump` → `/api/ingestions` → `/vault`.
 
@@ -27,7 +29,7 @@
 
 Features:
 
-- **The Dumpster (unified ingestion hub):** One clear intake surface for copy-pasted conversations, provider export JSON/history uploads, standalone prompts, standalone artifacts, JPG/PNG uploads, and audio links. The user should not need to understand the ingestion model first.
+- **The Dumpster (unified ingestion hub):** One clear intake surface for copy-pasted conversations, provider export JSON/history uploads, standalone prompts, standalone artifacts, Joint Photographic Experts Group (JPG) and PNG uploads, and audio links. The user should not need to understand the ingestion model first.
 - **Export guidance:** Exact step-by-step provider export instructions available inside The Dumpster for supported sources.
 - **The Stash:** A list/grid view of all saved artifacts. Each card shows: title, preview snippet (or thumbnail for images), source model badge, tags, creation date. Filtering by type (text/image/audio).
 - **Artifact detail view:** Full rendered Markdown for text. Image display for images. Link embed for audio. Metadata sidebar (source model, prompt if detected, source surface, timestamps, tags).
@@ -116,7 +118,7 @@ These are documented for future direction but should not be built or scaffolded 
 - **Visible seed/journey workspace** built on top of the hidden provenance ledger.
 - **AI-powered auto-tagging** using a lightweight vision/text model (#cyberpunk, #synthwave, #essay).
 - **Browser extension** for one-click capture from LLM chat interfaces.
-- **API integrations** with ChatGPT, Claude, etc. for direct import.
+- **API integrations** with ChatGPT, Claude, Gemini, and Grok for direct import.
 - **Freemium billing** with Stripe for premium storage tiers ($8/mo for media-heavy vaults).
 - **In-platform generation** via LLM API calls (micro-credit model).
 - **Curated exhibitions / challenges / bounties** (community events, brand partnerships).

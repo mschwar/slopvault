@@ -2,9 +2,11 @@
 
 ## Purpose
 
-This is the canonical visual system for SlopVault. It exists to keep the product visually calm, structurally precise, and consistent while preserving the dark, utilitarian, provenance-heavy character defined in the core docs.
+Designers and engineers apply the color, typography, spacing, and motion tokens in this guide to `/dump`, `/vault`, and `/artifact/[id]` screens, check contrast and touch-target rules, and render consistent dark-mode components.
 
-This system is for the MVP that stores, retrieves, and shares AI creations. The parser and vault are the center. Seed and journey views are supporting provenance surfaces, not the first screen the user must learn.
+This is the canonical visual system for SlopVault. It keeps the product visually calm, structurally precise, and consistent while preserving the dark, utilitarian, provenance-focused character defined in [01_THE_NORTH_STAR.md](01_THE_NORTH_STAR.md) and [FRONTEND_GUIDELINES.md](FRONTEND_GUIDELINES.md).
+
+This system supports the Minimum Viable Product (MVP) that stores, retrieves, and shares AI creations. The parser and vault are the center. Seed and journey views are supporting provenance surfaces, not the first screen the user must learn.
 
 ## Executive Design Calls
 

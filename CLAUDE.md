@@ -7,3 +7,7 @@ Available skills: /office-hours, /plan-ceo-review, /plan-eng-review, /plan-desig
 /investigate, /document-release, /codex, /cso, /autoplan, /careful, /freeze, /guard,
 /unfreeze, /gstack-upgrade.
 If gstack skills aren't working, run `cd ~/.claude/skills/gstack && ./setup` to rebuild.
+
+## Repository Operating Rules
+
+Read [AGENTS.md](AGENTS.md) and [README.md](README.md) before editing code or documentation. Run `/usr/bin/python3 -m unittest tests/test_doc_hygiene.py -v` after updating any top-level guide.

@@ -4,7 +4,9 @@
 
 Date of update: 2026-03-12
 
-The repo is a fully functional MVP with Supabase-backed persistence. All four gates are complete: ingestion, bundling (nodes), public feed with voting, and forking with lineage.
+Developers run `npm test`, `npm run build`, and `/usr/bin/python3 -m unittest tests/test_doc_hygiene.py -v` against the repository inputs (`src/`, `supabase/migrations/`, and top-level docs) to verify ingestion, Supabase persistence, node bundling, feed ranking, and documentation gates.
+
+The repository is a functional Minimum Viable Product (MVP) with Supabase-backed persistence. All four gates are complete: ingestion, bundling (nodes), public feed with voting, and forking with lineage. See [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ## Confirmed Working
 
@@ -14,7 +16,7 @@ The repo is a fully functional MVP with Supabase-backed persistence. All four ga
   Succeeded and produced all routes including `/`, `/dump`, `/vault`, `/feed`, `/nodes`, `/p/nodes/[id]`, `/u/[pseudonym]`, and all API endpoints.
 - Supabase integration
   - All database tables migrated to Supabase Postgres
-  - RLS policies configured for secure access control
+  - Row Level Security (RLS) policies configured for secure access control
   - Supabase Storage bucket `ingestion-sources` with RLS for file uploads
   - Server-side Supabase client with cookie-based auth
 - Client preview flow

@@ -2,7 +2,9 @@
 
 ## Current State
 
-A working Next.js prototype exists with Supabase-backed persistence and Supabase Storage for file uploads. The app runs at `/dump` (The Dumpster UI) and `/vault` (artifact browser), backed by `/api/ingestions/*` endpoints. All data stored in Supabase Postgres; files uploaded to the `ingestion-sources` Storage bucket with Row Level Security.
+Users submit raw AI transcripts, provider export JSON files, images, or audio links at `/dump`. The Next.js backend classifies the input, strips interface noise, stores original files in the `ingestion-sources` Supabase Storage bucket with Row Level Security (RLS), and persists searchable Markdown records in Supabase Postgres for `/vault`.
+
+A working Next.js prototype runs at `/dump` (unified ingestion UI) and `/vault` (artifact browser), backed by `/api/ingestions/*` endpoints. See [README.md](README.md) and [CURRENT_STATE.md](CURRENT_STATE.md) for active routes.
 
 **Naming collision to be aware of:**
 - `/dump` (route) = The Dumpster ingestion UI in the Next.js app
@@ -14,10 +16,10 @@ A working Next.js prototype exists with Supabase-backed persistence and Supabase
 
 | Layer | Choice | Rationale |
 |-------|--------|-----------|
-| Framework | Next.js 14+ (App Router) | React ecosystem, SSR/streaming where needed, API routes/server actions for parsing and artifact workflows, strong Vercel path |
+| Framework | Next.js 14+ (App Router) | React ecosystem, Server-Side Rendering (SSR) and streaming where needed, API routes and server actions for parsing and artifact workflows, strong Vercel path |
 | Styling | Tailwind CSS | Utility-first, dark-mode-native, fast iteration, matches the brutalist aesthetic |
-| Database | Supabase (Postgres) | Managed Postgres with Row Level Security, built-in auth, storage buckets, and room for later provenance expansion |
-| Auth | Supabase Auth | Email/password for MVP. OAuth and magic links can be added later without migration |
+| Database | Supabase (Postgres) | Managed Postgres with RLS, built-in auth, storage buckets, and room for later provenance expansion |
+| Auth | Supabase Auth | Email/password for the Minimum Viable Product (MVP). OAuth and magic links can be added later without migration |
 | Storage | Supabase Storage | For media files (images in MVP, audio/video later). Text artifacts stored directly in Postgres as Markdown |
 | Deployment | Vercel (assumed) | Native Next.js hosting, previews, low friction for early shipping |
 | Search | Postgres full-text search | Good enough for MVP artifact retrieval without adding another service |
@@ -157,7 +159,7 @@ The user-facing rule is simple: bring whatever you have to one place. The system
 
 The "Rabbit Holes" feed mode remains part of the public product direction, but it is not the MVP center of gravity. It relies on `nodes` and `parent_node_id` fork trees, which are later-phase publishing mechanics rather than the primary storage model.
 
-Approach: a `fork_depth` materialized column or a periodic background computation. For MVP-adjacent later work, a recursive CTE at query time is acceptable given low volume.
+Approach: a `fork_depth` materialized column or a periodic background computation. For MVP-adjacent later work, a recursive Common Table Expression (CTE) at query time is acceptable given low volume.
 
 ```sql
 WITH RECURSIVE lineage AS (
@@ -183,7 +185,7 @@ ORDER BY max_depth DESC;
 - A fully visible seed-first or graph-first workspace before the provenance spine is reliable.
 - Real-time collaborative editing.
 - Browser extension for one-click capture.
-- API integrations with LLM providers (direct import from ChatGPT, etc.).
+- API integrations with LLM providers (direct import from ChatGPT, Claude, Gemini, or Grok).
 - Notification system.
 - Admin dashboard or moderation tools (beyond basic report/hide).
 - Mobile app.

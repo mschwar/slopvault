@@ -5,7 +5,7 @@
 * **Backend/Database:** Supabase (Postgres for relational data, Auth for users, Storage for media).
 * **Parsing:** Custom Regex/Markdown parsers to clean up raw LLM copy-paste dumps.
 
-## 2. MVP Core Features
+## 2. Minimum Viable Product (MVP) Core Features
 ### Feature A: The Dumpster (Input & Parser)
 * A massive, forgiving text area.
 * User pastes raw text from ChatGPT/Claude/Grok.
@@ -42,7 +42,7 @@
 * `id` (UUID)
 * `user_id` (FK to Users)
 * `title` (String)
-* `parent_node_id` (FK to Nodes - THIS IS THE FORKING MAGIC)
+* `parent_node_id` (FK to Nodes - enables recursive forking and lineage trees)
 * `upvotes` (Integer)
 * `created_at` (Timestamp)
 

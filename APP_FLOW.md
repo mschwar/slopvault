@@ -2,7 +2,9 @@
 
 ## Purpose
 
-This document defines the intended screen hierarchy and user journey for the current MVP.
+Users bring pasted chat logs, provider export JSON files, prompts, images, or audio links into `/dump`, preview parsed Markdown and metadata, save records to `/vault`, and publish selected items on `/artifact/[id]`.
+
+This document defines the screen hierarchy and user journey for the current Minimum Viable Product (MVP). See [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) and [FRONTEND_GUIDELINES.md](FRONTEND_GUIDELINES.md) for visual rules.
 
 The MVP promise is simple:
 
